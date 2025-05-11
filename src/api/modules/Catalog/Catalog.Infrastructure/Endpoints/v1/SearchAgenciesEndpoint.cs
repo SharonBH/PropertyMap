@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace FSH.Starter.WebApi.Catalog.Infrastructure.Endpoints.v1;
 
-public static class SearchAgencysEndpoint
+public static class SearchAgenciesEndpoint
 {
     internal static RouteHandlerBuilder MapGetAgencyListEndpoint(this IEndpointRouteBuilder endpoints)
     {
@@ -20,7 +20,7 @@ public static class SearchAgencysEndpoint
                 var response = await mediator.Send(command);
                 return Results.Ok(response);
             })
-            .WithName(nameof(SearchAgencysEndpoint))
+            .WithName(nameof(SearchAgenciesEndpoint))
             .WithSummary("Gets a list of Agencies")
             .WithDescription("Gets a list of Agencies with pagination and filtering support")
             .Produces<PagedList<AgencyResponse>>()

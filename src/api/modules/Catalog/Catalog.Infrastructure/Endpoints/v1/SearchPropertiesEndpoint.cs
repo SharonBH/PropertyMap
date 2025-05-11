@@ -5,24 +5,27 @@ using FSH.Starter.WebApi.Catalog.Application.Properties.Search.v1;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace FSH.Starter.WebApi.Catalog.Infrastructure.Endpoints.v1;
+
 public static class SearchPropertiesEndpoint
 {
-    internal static RouteHandlerBuilder MapSearchPropertiesEndpoint(this IEndpointRouteBuilder endpoints)
+    internal static RouteHandlerBuilder MapGetPropertiesListEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/properties", async ([AsParameters] SearchPropertiesCommand command, ISender mediator) =>
+            .MapPost("/search", async (ISender mediator, [FromBody] SearchPropertiesCommand command) =>
             {
                 var response = await mediator.Send(command);
                 return Results.Ok(response);
             })
             .WithName(nameof(SearchPropertiesEndpoint))
-            .WithSummary("Searches Properties")
-            .WithDescription("Searches Properties")
+            .WithSummary("Gets a list of Properties")
+            .WithDescription("Gets a list of Properties with pagination and filtering support")
             .Produces<PagedList<PropertyResponse>>()
             .RequirePermission("Permissions.Properties.View")
             .MapToApiVersion(1);
     }
 }
+

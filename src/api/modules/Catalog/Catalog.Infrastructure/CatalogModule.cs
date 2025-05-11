@@ -70,7 +70,7 @@ public static class CatalogModule
             propertyGroup.MapPropertyCreationEndpoint();
             propertyGroup.MapGetPropertyEndpoint();
             propertyGroup.MapPropertyUpdateEndpoint();
-            propertyGroup.MapSearchPropertiesEndpoint();
+            propertyGroup.MapGetPropertiesListEndpoint();
             propertyGroup.MapPropertyDeleteEndpoint();
 
             var reviewGroup = app.MapGroup("reviews").WithTags("reviews");
