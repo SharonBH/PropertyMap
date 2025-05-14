@@ -16,7 +16,7 @@ public sealed class UpdateProprtyHandler(
         ArgumentNullException.ThrowIfNull(request);
         var property = await repository.GetByIdAsync(request.Id, cancellationToken);
         _ = property ?? throw new PropertyNotFoundException(request.Id);
-        var updatedProperty = property.Update(request.Name, request.Description, request.NeighborhoodId, request.Address, request.AskingPrice, request.Size, request.Rooms, request.Bathrooms, request.PropertyTypeId, request.ListedDate, request.SoldDate, request.SoldPrice, request.FeatureList);
+        var updatedProperty = property.Update(request.Name, request.Description, request.NeighborhoodId, request.Address, request.AskingPrice, request.Size, request.Rooms, request.Bathrooms, request.PropertyTypeId, request.AgencyId, request.ListedDate, request.SoldDate, request.SoldPrice, request.FeatureList);
         await repository.UpdateAsync(updatedProperty, cancellationToken);
         logger.LogInformation("Property with id : {PropertyId} updated.", property.Id);
         return new UpdatePropertyResponse(property.Id);

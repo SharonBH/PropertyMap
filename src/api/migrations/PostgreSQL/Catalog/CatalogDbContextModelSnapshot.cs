@@ -320,6 +320,9 @@ namespace FSH.Starter.WebApi.Migrations.PostgreSQL.Catalog
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid>("AgencyId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("AskingPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -386,6 +389,8 @@ namespace FSH.Starter.WebApi.Migrations.PostgreSQL.Catalog
                         .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AgencyId");
 
                     b.HasIndex("NeighborhoodId");
 
@@ -582,6 +587,12 @@ namespace FSH.Starter.WebApi.Migrations.PostgreSQL.Catalog
 
             modelBuilder.Entity("FSH.Starter.WebApi.Catalog.Domain.Property", b =>
                 {
+                    b.HasOne("FSH.Starter.WebApi.Catalog.Domain.Agency", "Agency")
+                        .WithMany()
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("FSH.Starter.WebApi.Catalog.Domain.Neighborhood", "Neighborhood")
                         .WithMany()
                         .HasForeignKey("NeighborhoodId")
@@ -593,6 +604,8 @@ namespace FSH.Starter.WebApi.Migrations.PostgreSQL.Catalog
                         .HasForeignKey("PropertyTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Agency");
 
                     b.Navigation("Neighborhood");
 

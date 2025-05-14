@@ -1,0 +1,66 @@
+{
+  "name": "Property",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Property title"
+    },
+    "price": {
+      "type": "number",
+      "description": "Property price"
+    },
+    "address": {
+      "type": "string",
+      "description": "Property address"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "house",
+        "apartment",
+        "condo",
+        "land"
+      ],
+      "description": "Type of property"
+    },
+    "bedrooms": {
+      "type": "number",
+      "description": "Number of bedrooms"
+    },
+    "bathrooms": {
+      "type": "number",
+      "description": "Number of bathrooms"
+    },
+    "area": {
+      "type": "number",
+      "description": "Square footage"
+    },
+    "panorama_position": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "description": "Position in the panorama sphere"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Property image URL"
+    }
+  },
+  "required": [
+    "title",
+    "price",
+    "address",
+    "type",
+    "panorama_position"
+  ]
+}

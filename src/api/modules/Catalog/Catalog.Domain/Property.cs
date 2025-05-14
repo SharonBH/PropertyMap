@@ -1,5 +1,7 @@
 using FSH.Framework.Core.Domain;
 using FSH.Framework.Core.Domain.Contracts;
+using FSH.Starter.WebApi.Catalog.Domain.Events;
+
 
 namespace FSH.Starter.WebApi.Catalog.Domain;
 public class Property : AuditableEntity, IAggregateRoot
@@ -15,6 +17,9 @@ public class Property : AuditableEntity, IAggregateRoot
     public int Bathrooms { get; private set; }
     public Guid PropertyTypeId { get; private set; }
     public virtual PropertyType PropertyType { get; private set; } = default!;
+
+    public Guid AgencyId { get; private set; }
+    public virtual Agency Agency { get; private set; } = default!;
     public DateTime ListedDate { get; private set; }
     public DateTime? SoldDate { get; private set; }
     public decimal? SoldPrice { get; private set; }
@@ -22,7 +27,7 @@ public class Property : AuditableEntity, IAggregateRoot
 
     private Property() { }
 
-    private Property(Guid id, string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, DateTime listedDate, string featureList)
+    private Property(Guid id, string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, Guid agencyId, DateTime listedDate, string featureList)
     {
         Id = id;
         Name = name;
@@ -34,16 +39,19 @@ public class Property : AuditableEntity, IAggregateRoot
         Rooms = rooms;
         Bathrooms = bathrooms;
         PropertyTypeId = propertyTypeId;
+        AgencyId = agencyId;
         ListedDate = listedDate;
         FeatureList = featureList;
+
+        QueueDomainEvent(new PropertyCreated { Property = this });
     }
 
-    public static Property Create(string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, DateTime listedDate, string featureList)
+    public static Property Create(string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, Guid agencyId, DateTime listedDate, string featureList)
     {
-        return new Property(Guid.NewGuid(), name, description, neighborhoodId, address, askingPrice, size, rooms, bathrooms, propertyTypeId, listedDate, featureList);
+        return new Property(Guid.NewGuid(), name, description, neighborhoodId, address, askingPrice, size, rooms, bathrooms, propertyTypeId, agencyId, listedDate, featureList);
     }
 
-    public Property Update(string? name, string? description, Guid? neighborhoodId, string? address, decimal? askingPrice, double? size, int? rooms, int? bathrooms, Guid? propertyTypeId, DateTime? listedDate, DateTime? soldDate, decimal? soldPrice, string? featureList)
+    public Property Update(string? name, string? description, Guid? neighborhoodId, string? address, decimal? askingPrice, double? size, int? rooms, int? bathrooms, Guid? propertyTypeId, Guid? agencyId, DateTime? listedDate, DateTime? soldDate, decimal? soldPrice, string? featureList)
     {
         bool isUpdated = false;
 
@@ -101,6 +109,12 @@ public class Property : AuditableEntity, IAggregateRoot
             isUpdated = true;
         }
 
+        if (agencyId.HasValue && AgencyId != agencyId.Value)
+        {
+            AgencyId = agencyId.Value;
+            isUpdated = true;
+        }
+
         if (listedDate.HasValue && ListedDate != listedDate.Value)
         {
             ListedDate = listedDate.Value;
@@ -127,7 +141,7 @@ public class Property : AuditableEntity, IAggregateRoot
 
         if (isUpdated)
         {
-            //QueueDomainEvent(new PropertyUpdated { Property = this });
+            QueueDomainEvent(new PropertyUpdated { Property = this });
         }
 
         return this;

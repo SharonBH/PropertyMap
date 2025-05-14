@@ -19,7 +19,7 @@ var database = builder.AddPostgres("db", username, password, port: 5432)
 var api = builder.AddProject<Projects.Server>("webapi")
     .WaitFor(database);
 
-var blazor = builder.AddProject<Projects.Client>("blazor");
+//var blazor = builder.AddProject<Projects.Client>("blazor");
 
 using var app = builder.Build();
 

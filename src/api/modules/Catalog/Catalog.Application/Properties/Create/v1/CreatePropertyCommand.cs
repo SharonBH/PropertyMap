@@ -12,5 +12,6 @@ public sealed record CreatePropertyCommand(
     int Rooms,
     int Bathrooms,
     Guid PropertyTypeId,
+    Guid AgencyId,
     DateTime ListedDate,
     string FeatureList) : IRequest<CreatePropertyResponse>;

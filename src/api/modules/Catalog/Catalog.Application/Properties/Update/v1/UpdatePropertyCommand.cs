@@ -13,6 +13,7 @@ public sealed record UpdatePropertyCommand(
     int? Rooms,
     int? Bathrooms,
     Guid? PropertyTypeId,
+    Guid? AgencyId,
     DateTime? ListedDate,
     DateTime? SoldDate,
     decimal? SoldPrice,

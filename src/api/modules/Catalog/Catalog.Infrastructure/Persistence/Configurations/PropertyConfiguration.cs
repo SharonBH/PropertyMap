@@ -26,5 +26,10 @@ internal sealed class PropertyConfiguration : IEntityTypeConfiguration<Property>
             .WithMany()
             .HasForeignKey(x => x.PropertyTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.Agency)
+            .WithMany()
+            .HasForeignKey(x => x.AgencyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -13,7 +13,7 @@ public sealed class CreatePropertyHandler(
     public async Task<CreatePropertyResponse> Handle(CreatePropertyCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var property = Property.Create(request.Name!, request.Description, request.NeighborhoodId, request.Address, request.AskingPrice, request.Size, request.Rooms, request.Bathrooms, request.PropertyTypeId, request.ListedDate, request.FeatureList);
+        var property = Property.Create(request.Name!, request.Description, request.NeighborhoodId, request.Address, request.AskingPrice, request.Size, request.Rooms, request.Bathrooms, request.PropertyTypeId, request.AgencyId, request.ListedDate, request.FeatureList);
         await repository.AddAsync(property, cancellationToken);
         logger.LogInformation("property created {PropertyId}", property.Id);
         return new CreatePropertyResponse(property.Id);
