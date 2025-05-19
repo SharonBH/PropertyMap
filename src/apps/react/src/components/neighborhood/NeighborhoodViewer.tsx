@@ -168,7 +168,7 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
   }, [properties, onSelectProperty]);
 
   return (
-    <div className="w-full h-[70vh] relative mb-8 rounded-lg overflow-hidden border border-muted">
+    <div className="w-full h-full relative border border-muted">
       <div ref={viewerContainer} className="w-full h-full"></div>
       
       {selectedProperty && (
@@ -177,7 +177,7 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
             <CardContent className="p-0">
               <div className="relative">
                 <button 
-                  className="absolute top-2 right-2 z-10 bg-background/80 rounded-full p-1 hover:bg-background"
+                  className="absolute top-2 right-2 z-10 bg-background/80 p-1 hover:bg-background"
                   onClick={() => onSelectProperty(null)}
                 >
                   ✕

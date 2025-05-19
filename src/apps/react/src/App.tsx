@@ -10,7 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import FallbackIndex from "./pages/FallbackIndex";
 import PropertyDetails from "./pages/PropertyDetails";
 import Properties from "./pages/Properties";
-import NeighborhoodView from "./pages/NeighborhoodView";
+import NeighborhoodMap from "./pages/NeighborhoodMap";
 import ManageListings from "./pages/ManageListings";
 import AboutPage from "./pages/AboutPage";
 import ServicesPage from "./pages/ServicesPage";
@@ -42,7 +42,7 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/neighborhood/:id" element={<NeighborhoodView />} />
+              <Route path="/neighborhood/:id" element={<NeighborhoodMap />} />
               <Route 
                 path="/manage" 
                 element={
