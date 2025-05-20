@@ -1,4 +1,4 @@
-﻿using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant;
 using FSH.Starter.WebApi.Catalog.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,6 +15,9 @@ internal sealed class AgencyConfiguration : IEntityTypeConfiguration<Agency>
         builder.Property(x => x.Address).HasMaxLength(300);
         builder.Property(x => x.Email).HasMaxLength(100);
         builder.Property(x => x.Telephone).HasMaxLength(50);
+        builder.Property(x => x.LogoURL).HasMaxLength(300);
+        builder.Property(x => x.PrimaryColor).HasMaxLength(50);
+        builder.Property(x => x.AdditionalInfo).HasColumnType("text");
         builder.HasIndex(x => x.Name).IsUnique();
         builder.HasIndex(x => x.Email).IsUnique();
     }

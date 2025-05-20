@@ -13,7 +13,7 @@ public sealed class CreateNeighborhoodHandler(
     public async Task<CreateNeighborhoodResponse> Handle(CreateNeighborhoodCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var neighborhood = Neighborhood.Create(request.Name!, request.Description, request.CityId, request.SphereImgURL, request.Score);
+        var neighborhood = Neighborhood.Create(request.Name!, request.Description, request.CityId, request.SphereImgURL, request.IconURL, request.Score);
         await repository.AddAsync(neighborhood, cancellationToken);
         logger.LogInformation("neighborhood created {NeighborhoodId}", neighborhood.Id);
         return new CreateNeighborhoodResponse(neighborhood.Id);

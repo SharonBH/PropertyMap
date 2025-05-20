@@ -7,4 +7,7 @@ public sealed record UpdateAgencyCommand(
     string? Description = null,
     string? Email = null,
     string? Telephone = null,
-    string? Address = null) : IRequest<UpdateAgencyResponse>;
+    string? Address = null,
+    string? LogoURL = null,
+    string? PrimaryColor = null,
+    string? AdditionalInfo = null) : IRequest<UpdateAgencyResponse>;

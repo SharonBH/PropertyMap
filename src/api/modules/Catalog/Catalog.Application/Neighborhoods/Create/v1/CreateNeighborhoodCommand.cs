@@ -7,4 +7,5 @@ public sealed record CreateNeighborhoodCommand(
     string Description,
     Guid CityId,
     string SphereImgURL,
+    string IconURL,
     double Score) : IRequest<CreateNeighborhoodResponse>;

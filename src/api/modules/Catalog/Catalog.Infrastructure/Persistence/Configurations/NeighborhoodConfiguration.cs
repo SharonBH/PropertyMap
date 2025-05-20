@@ -13,6 +13,7 @@ internal sealed class NeighborhoodConfiguration : IEntityTypeConfiguration<Neigh
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(1000);
         builder.Property(x => x.SphereImgURL).HasMaxLength(300);
+        builder.Property(x => x.IconURL).HasMaxLength(300);
         builder.Property(x => x.Score).HasPrecision(5, 2);
         builder.HasIndex(x => x.Name).IsUnique();
         builder.HasOne(x => x.City)

@@ -16,7 +16,7 @@ public sealed class UpdateAgencyHandler(
         ArgumentNullException.ThrowIfNull(request);
         var agency = await repository.GetByIdAsync(request.Id, cancellationToken);
         _ = agency ?? throw new AgencyNotFoundException(request.Id);
-        var updatedAgency = agency.Update(request.Name, request.Email, request.Telephone, request.Address);
+        var updatedAgency = agency.Update(request.Name, request.Email, request.Telephone, request.Address, request.Description, request.LogoURL, request.PrimaryColor, request.AdditionalInfo);
         await repository.UpdateAsync(updatedAgency, cancellationToken);
         logger.LogInformation("Agency with id : {AgencyId} updated.", agency.Id);
         return new UpdateAgencyResponse(agency.Id);

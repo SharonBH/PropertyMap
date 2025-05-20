@@ -14,7 +14,7 @@ var password = builder.AddParameter("pg-password", "admin");
 
 var database = builder.AddPostgres("db", username, password, port: 5432)
     .WithDataVolume()
-    .AddDatabase("fullstackhero");
+    .AddDatabase("fsh");
 
 var api = builder.AddProject<Projects.Server>("webapi")
     .WaitFor(database);

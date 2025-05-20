@@ -20,7 +20,7 @@ public sealed class GetNeighborhoodHandler(
             {
                 var NeighborhoodItem = await repository.GetByIdAsync(request.Id, cancellationToken);
                 if (NeighborhoodItem == null) throw new NeighborhoodNotFoundException(request.Id);
-                return new NeighborhoodResponse(NeighborhoodItem.Id, NeighborhoodItem.Name, NeighborhoodItem.Description, NeighborhoodItem.CityId, NeighborhoodItem.SphereImgURL, NeighborhoodItem.Score);
+                return new NeighborhoodResponse(NeighborhoodItem.Id, NeighborhoodItem.Name, NeighborhoodItem.Description, NeighborhoodItem.CityId, NeighborhoodItem.SphereImgURL, NeighborhoodItem.IconURL, NeighborhoodItem.Score);
             },
             cancellationToken: cancellationToken);
         return item!;

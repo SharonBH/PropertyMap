@@ -10,10 +10,13 @@ public class Agency : AuditableEntity, IAggregateRoot
     public string Telephone { get; private set; } = string.Empty;
     public string Address { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
+    public string LogoURL { get; private set; } = string.Empty;
+    public string PrimaryColor { get; private set; } = string.Empty;
+    public string AdditionalInfo { get; private set; } = string.Empty;
 
     private Agency() { }
 
-    private Agency(Guid id, string name, string email, string telephone, string address, string description)
+    private Agency(Guid id, string name, string email, string telephone, string address, string description, string logoURL, string primaryColor, string additionalInfo)
     {
         Id = id;
         Name = name;
@@ -21,15 +24,18 @@ public class Agency : AuditableEntity, IAggregateRoot
         Telephone = telephone;
         Address = address;
         Description = description;
+        LogoURL = logoURL;
+        PrimaryColor = primaryColor;
+        AdditionalInfo = additionalInfo;
         QueueDomainEvent(new AgencyCreated { Agency = this });
     }
 
-    public static Agency Create(string name, string email, string telephone, string address, string description)
+    public static Agency Create(string name, string email, string telephone, string address, string description, string logoURL, string primaryColor, string additionalInfo)
     {
-        return new Agency(Guid.NewGuid(), name, email, telephone, address, description);
+        return new Agency(Guid.NewGuid(), name, email, telephone, address, description, logoURL, primaryColor, additionalInfo);
     }
 
-    public Agency Update(string? name, string? email, string? telephone, string? address)
+    public Agency Update(string? name, string? email, string? telephone, string? address, string? description, string? logoURL, string? primaryColor, string? additionalInfo)
     {
         bool isUpdated = false;
 
@@ -54,6 +60,30 @@ public class Agency : AuditableEntity, IAggregateRoot
         if (!string.IsNullOrWhiteSpace(address) && !string.Equals(Address, address, StringComparison.OrdinalIgnoreCase))
         {
             Address = address;
+            isUpdated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(description) && !string.Equals(Description, description, StringComparison.OrdinalIgnoreCase))
+        {
+            Description = description;
+            isUpdated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(logoURL) && !string.Equals(LogoURL, logoURL, StringComparison.OrdinalIgnoreCase))
+        {
+            LogoURL = logoURL;
+            isUpdated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(primaryColor) && !string.Equals(PrimaryColor, primaryColor, StringComparison.OrdinalIgnoreCase))
+        {
+            PrimaryColor = primaryColor;
+            isUpdated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(additionalInfo) && !string.Equals(AdditionalInfo, additionalInfo, StringComparison.OrdinalIgnoreCase))
+        {
+            AdditionalInfo = additionalInfo;
             isUpdated = true;
         }
 

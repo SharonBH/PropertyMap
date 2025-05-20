@@ -10,28 +10,30 @@ public class Neighborhood : AuditableEntity, IAggregateRoot
     public Guid CityId { get; private set; }
     public virtual City City { get; private set; } = default!;
     public string SphereImgURL { get; private set; } = string.Empty;
+    public string IconURL { get; private set; } = string.Empty;
     public double Score { get; private set; }
 
     private Neighborhood() { }
 
-    private Neighborhood(Guid id, string name, string description, Guid cityId, string sphereImgURL, double score)
+    private Neighborhood(Guid id, string name, string description, Guid cityId, string sphereImgURL, string iconURL, double score)
     {
         Id = id;
         Name = name;
         Description = description;
         CityId = cityId;
         SphereImgURL = sphereImgURL;
+        IconURL = iconURL;
         Score = score;
 
         QueueDomainEvent(new NeighborhoodCreated { Neighborhood = this });
     }
 
-    public static Neighborhood Create(string name, string description, Guid cityId, string sphereImgURL, double score)
+    public static Neighborhood Create(string name, string description, Guid cityId, string sphereImgURL, string iconURL, double score)
     {
-        return new Neighborhood(Guid.NewGuid(), name, description, cityId, sphereImgURL, score);
+        return new Neighborhood(Guid.NewGuid(), name, description, cityId, sphereImgURL, iconURL, score);
     }
 
-    public Neighborhood Update(string? name, string? description, Guid? cityId, string? sphereImgURL, double? score)
+    public Neighborhood Update(string? name, string? description, Guid? cityId, string? sphereImgURL, string? iconURL, double? score)
     {
         bool isUpdated = false;
 
@@ -56,6 +58,12 @@ public class Neighborhood : AuditableEntity, IAggregateRoot
         if (!string.IsNullOrWhiteSpace(sphereImgURL) && !string.Equals(SphereImgURL, sphereImgURL, StringComparison.OrdinalIgnoreCase))
         {
             SphereImgURL = sphereImgURL;
+            isUpdated = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(iconURL) && !string.Equals(IconURL, iconURL, StringComparison.OrdinalIgnoreCase))
+        {
+            IconURL = iconURL;
             isUpdated = true;
         }
 

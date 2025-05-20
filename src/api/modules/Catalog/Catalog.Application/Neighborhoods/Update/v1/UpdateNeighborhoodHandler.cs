@@ -16,7 +16,7 @@ public sealed class UpdateNeighborhoodHandler(
         ArgumentNullException.ThrowIfNull(request);
         var Neighborhood = await repository.GetByIdAsync(request.Id, cancellationToken);
         _ = Neighborhood ?? throw new NeighborhoodNotFoundException(request.Id);
-        var updatedNeighborhood = Neighborhood.Update(request.Name, request.Description, request.CityId, request.SphereImgURL, request.Score);
+        var updatedNeighborhood = Neighborhood.Update(request.Name, request.Description, request.CityId, request.SphereImgURL, request.IconURL, request.Score);
         await repository.UpdateAsync(updatedNeighborhood, cancellationToken);
         logger.LogInformation("Neighborhood with id : {NeighborhoodId} updated.", Neighborhood.Id);
         return new UpdateNeighborhoodResponse(Neighborhood.Id);

@@ -8,4 +8,5 @@ public sealed record UpdateNeighborhoodCommand(
     string? Description,
     Guid? CityId,
     string? SphereImgURL,
+    string? IconURL,
     double? Score) : IRequest<UpdateNeighborhoodResponse>;
