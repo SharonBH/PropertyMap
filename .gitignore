@@ -457,6 +457,5 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-**/Internal/Generated
-src/api/server/appsettings.*
+# **/Internal/Generated
 src/api/server/.env
