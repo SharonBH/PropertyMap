@@ -11,7 +11,7 @@ public static class CreateNeighborhoodEndpoint
     internal static RouteHandlerBuilder MapNeighborhoodCreationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/neighborhoods", async (CreateNeighborhoodCommand request, ISender mediator) =>
+            .MapPost("", async (CreateNeighborhoodCommand request, ISender mediator) =>
             {
                 var response = await mediator.Send(request);
                 return Results.Ok(response);

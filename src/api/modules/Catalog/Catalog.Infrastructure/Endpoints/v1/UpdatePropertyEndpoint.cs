@@ -11,17 +11,17 @@ public static class UpdatePropertyEndpoint
     internal static RouteHandlerBuilder MapPropertyUpdateEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPut("/propertytypes/{id:guid}", async (Guid id, UpdatePropertyCommand request, ISender mediator) =>
+            .MapPut("/{id:guid}", async (Guid id, UpdatePropertyCommand request, ISender mediator) =>
             {
                 if (id != request.Id) return Results.BadRequest();
                 var response = await mediator.Send(request);
                 return Results.Ok(response);
             })
             .WithName(nameof(UpdatePropertyEndpoint))
-            .WithSummary("Updates a PropertyType")
-            .WithDescription("Updates a PropertyType")
+            .WithSummary("Updates a Property")
+            .WithDescription("Updates a Property")
             .Produces<UpdatePropertyResponse>()
-            .RequirePermission("Permissions.PropertyTypes.Update")
+            .RequirePermission("Permissions.Properties.Update")
             .MapToApiVersion(1);
     }
 }

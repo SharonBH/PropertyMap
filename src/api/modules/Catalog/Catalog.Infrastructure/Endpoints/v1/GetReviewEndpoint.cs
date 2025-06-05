@@ -11,7 +11,7 @@ public static class GetReviewEndpoint
     internal static RouteHandlerBuilder MapGetReviewEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/Reviews/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapGet("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var response = await mediator.Send(new GetReviewRequest(id));
                 return Results.Ok(response);

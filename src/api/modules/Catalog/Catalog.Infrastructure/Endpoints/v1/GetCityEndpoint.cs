@@ -11,7 +11,7 @@ public static class GetCityEndpoint
     internal static RouteHandlerBuilder MapGetCityEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/cities/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapGet("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var response = await mediator.Send(new GetCityRequest(id));
                 return Results.Ok(response);

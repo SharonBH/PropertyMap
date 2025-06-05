@@ -29,12 +29,12 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 
     private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
     {
-        var text = new StringBuilder(".NET 8 Starter Kit with Vertical Slice Architecture!");
+        var text = new StringBuilder(".NET 9 HomeMAP API");
         var info = new OpenApiInfo()
         {
-            Title = "FSH.Starter.WebApi",
+            Title = "SBH.HomeMap.WebApi",
             Version = description.ApiVersion.ToString(),
-            Contact = new OpenApiContact() { Name = "Mukesh Murugan", Email = "hello@codewithmukesh.com" }
+            Contact = new OpenApiContact() { Name = "SBH", Email = "sharon.benhaim@gmail.com" }
         };
 
         if (description.IsDeprecated)

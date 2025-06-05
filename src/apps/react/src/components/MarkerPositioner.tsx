@@ -1,14 +1,14 @@
 
 import React, { useRef } from "react";
-import { Neighborhood } from "@/lib/data";
 import { useMarkerPositioner } from "@/hooks/useMarkerPositioner";
 import { MarkerPositionerUI } from "./marker/MarkerPositionerUI";
 
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
+import { NeighborhoodResponse } from "@/api/homemapapi";
 
 interface MarkerPositionerProps {
-  neighborhood: Neighborhood;
+  neighborhood: NeighborhoodResponse;
   onPositionChange: (position: { yaw: number; pitch: number }) => void;
 }
 

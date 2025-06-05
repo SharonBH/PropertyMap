@@ -11,7 +11,7 @@ public static class DeletePropertyTypeEndpoint
     internal static RouteHandlerBuilder MapPropertyTypeDeleteEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapDelete("/propertytypes/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapDelete("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 await mediator.Send(new DeletePropertyTypeCommand(id));
                 return Results.NoContent();

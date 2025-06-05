@@ -1,104 +1,112 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/useAuth";
 import {
-  properties,
-  neighborhoods,
-  agents,
-  reviews,
-  Property,
-  Neighborhood,
-  Agent,
-  Review,
-  getPropertiesByNeighborhood,
-  getNeighborhoodById,
-  getAgentById,
-  getPropertyById,
-  getSoldPropertiesByAgent,
-  getActivePropertiesByAgent,
-  getReviewsByAgent,
-  calculateAverageRating,
-} from "@/lib/data";
+  NeighborhoodResponse,
+  PropertyResponse,
+  ReviewResponse,
+  searchPropertiesEndpoint,
+  searchReviewsEndpoint,
+} from "@/api/homemapapi";
 
 export function useProperties() {
-  const { currentAgent: authAgent } = useAuth();
-  
-  // Use the authenticated agent if available, otherwise fall back to the first agent
-  const [currentAgent, setCurrentAgent] = useState<Agent>(authAgent || agents[0]);
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState<
-    Neighborhood | null
-  >(null);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const [agentNeighborhoods, setAgentNeighborhoods] = useState<Neighborhood[]>([]);
-  const [soldProperties, setSoldProperties] = useState<Property[]>([]);
-  const [agentReviews, setAgentReviews] = useState<Review[]>([]);
+  const {currentAgent } = useAuth();
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<NeighborhoodResponse | null>(null);
+  const [filteredProperties, setFilteredProperties] = useState<PropertyResponse[]>([]);
+  const [agentNeighborhoods, setAgentNeighborhoods] = useState<NeighborhoodResponse[]>([]);
+  const [soldProperties, setSoldProperties] = useState<PropertyResponse[]>([]);
+  const [agentReviews, setAgentReviews] = useState<ReviewResponse[]>([]);
+  const [allProperties, setAllProperties] = useState<PropertyResponse[]>([]);
 
-  // Update current agent when auth state changes
+  // Fetch neighborhoods for the agent (from agent.neighborhoods)
   useEffect(() => {
-    if (authAgent) {
-      setCurrentAgent(authAgent);
-    }
-  }, [authAgent]);
-
-  // Initialize agent's neighborhoods and selected neighborhood
-  useEffect(() => {
-    if (currentAgent) {
-      const agentNeighborhoodIds = currentAgent.neighborhoods;
-      const neighborhoods = agentNeighborhoodIds.map(id => 
-        getNeighborhoodById(id)
-      ).filter(Boolean) as Neighborhood[];
-      
-      setAgentNeighborhoods(neighborhoods);
-      
-      // Default to first neighborhood in agent's list
-      if (neighborhoods.length > 0 && !selectedNeighborhood) {
-        setSelectedNeighborhood(neighborhoods[0]);
+    if (currentAgent && currentAgent.neighborhoods) {
+      setAgentNeighborhoods(currentAgent.neighborhoods);
+      if (currentAgent.neighborhoods.length > 0 && !selectedNeighborhood) {
+        setSelectedNeighborhood(currentAgent.neighborhoods[0]);
       }
-      
-      // Get sold properties for the current agent
-      const soldProps = getSoldPropertiesByAgent(currentAgent.id);
-      setSoldProperties(soldProps);
-      
-      // Get reviews for the current agent
-      const reviews = getReviewsByAgent(currentAgent.id);
-      setAgentReviews(reviews);
     }
   }, [currentAgent, selectedNeighborhood]);
 
-  // Update filtered properties when selected neighborhood changes
+  // Fetch all properties for the agent's agency
+  useEffect(() => {
+    async function fetchProperties() {
+      if (currentAgent?.agency?.id) {
+        const res = await searchPropertiesEndpoint({
+          advancedFilter: {
+            field: "agencyId",
+            operator: "eq",
+            value: currentAgent.agency.id,
+          },
+          pageNumber: 1,
+          pageSize: 100,
+        });
+        setAllProperties(res.items || []);
+      } else {
+        setAllProperties([]);
+      }
+    }
+    fetchProperties();
+  }, [currentAgent]);
+
+  // Fetch all reviews for the agent's agency
+  useEffect(() => {
+    async function fetchReviews() {
+      if (currentAgent?.agency?.id) {
+        const res = await searchReviewsEndpoint({
+          advancedFilter: {
+            field: "agencyId",
+            operator: "eq",
+            value: currentAgent.agency.id,
+          },
+          pageNumber: 1,
+          pageSize: 100,
+        });
+        setAgentReviews(res.items || []);
+      } else {
+        setAgentReviews([]);
+      }
+    }
+    fetchReviews();
+  }, [currentAgent]);
+
+  // Update filtered properties when selected neighborhood or allProperties changes
   useEffect(() => {
     if (selectedNeighborhood) {
-      const props = getPropertiesByNeighborhood(selectedNeighborhood.id);
-      // Only include active properties belonging to current agent
-      const agentProps = props.filter(
-        prop => prop.agentId === currentAgent.id //&& prop.status === "active"
+      const props = allProperties.filter(
+        (prop: PropertyResponse) => prop.neighborhoodName === selectedNeighborhood.name
       );
-      setFilteredProperties(agentProps);
+      setFilteredProperties(props);
     } else {
       setFilteredProperties([]);
     }
-  }, [selectedNeighborhood, currentAgent]);
+  }, [selectedNeighborhood, allProperties]);
+
+  // Update sold properties when allProperties changes
+  useEffect(() => {
+    const soldProps = allProperties.filter(
+      (prop: PropertyResponse) => prop.soldDate != null
+    );
+    setSoldProperties(soldProps);
+  }, [allProperties]);
 
   const selectNeighborhood = (neighborhoodId: string) => {
-    const neighborhood = getNeighborhoodById(neighborhoodId);
+    const neighborhood = agentNeighborhoods.find((n) => n.id === neighborhoodId);
     setSelectedNeighborhood(neighborhood || null);
   };
 
-  const selectAgent = (agentId: string) => {
-    const agent = getAgentById(agentId);
-    if (agent) {
-      setCurrentAgent(agent);
-      // Reset selected neighborhood when changing agent
-      setSelectedNeighborhood(null);
-    }
+  // Get all active properties for the current agent's agency
+  const agentProperties = allProperties.filter(
+    (prop: PropertyResponse) => !prop.soldDate
+  );
+
+  // Calculate average rating using review scores
+  const calculateAverageRating = () => {
+    if (!agentReviews.length) return 0;
+    const total = agentReviews.reduce((sum, review) => sum + (review.score || 0), 0);
+    return total / agentReviews.length;
   };
 
-  // Get all properties for the current agent
-  const agentProperties = getActivePropertiesByAgent(currentAgent.id);
-
   return {
-    properties,
-    neighborhoods,
-    agents,
     currentAgent,
     selectedNeighborhood,
     filteredProperties,
@@ -106,11 +114,6 @@ export function useProperties() {
     soldProperties,
     agentReviews,
     selectNeighborhood,
-    selectAgent,
-    getPropertyById,
-    getAgentById,
-    getNeighborhoodById,
-    getPropertiesByNeighborhood,
     agentProperties,
     calculateAverageRating,
   };

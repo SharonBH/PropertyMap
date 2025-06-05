@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -7,24 +6,36 @@ import { Property } from "@/lib/data";
 import PropertyCard from "@/components/PropertyCard";
 import NeighborhoodHeader from "@/components/neighborhood/NeighborhoodHeader";
 import NeighborhoodViewer from "@/components/neighborhood/NeighborhoodViewer";
+import { mapNeighborhood, mapProperty } from "@/lib/apiMappers";
 
 const NeighborhoodView = () => {
   const { id } = useParams<{ id: string }>();
-  const { getNeighborhoodById, getPropertiesByNeighborhood, neighborhoods } = useProperties();
-  const [neighborhood, setNeighborhood] = useState(getNeighborhoodById(id || ''));
-  const [properties, setProperties] = useState<Property[]>([]);
+  const { agentNeighborhoods, filteredProperties } = useProperties();
+  // Map all neighborhoods to UI model
+  const mappedNeighborhoods = agentNeighborhoods.map(mapNeighborhood);
+  // Helper to get mapped neighborhood by id
+  const getMappedNeighborhoodById = (nid: string) => {
+    const n = agentNeighborhoods.find((n) => n.id === nid);
+    return n ? mapNeighborhood(n) : null;
+  };
+  // Helper to get mapped properties by neighborhood id
+  const getMappedPropertiesByNeighborhood = (nid: string) => {
+    const neighborhood = agentNeighborhoods.find((n) => n.id === nid);
+    if (!neighborhood) return [];
+    return filteredProperties
+      .filter((p) => p.neighborhoodName === neighborhood.name)
+      .map(mapProperty);
+  };
+  const [neighborhood, setNeighborhood] = useState(getMappedNeighborhoodById(id || ''));
+  const [properties, setProperties] = useState<Property[]>(getMappedPropertiesByNeighborhood(id || ''));
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   
   useEffect(() => {
     if (id) {
-      const foundNeighborhood = getNeighborhoodById(id);
-      if (foundNeighborhood) {
-        setNeighborhood(foundNeighborhood);
-        const neighborhoodProperties = getPropertiesByNeighborhood(id);
-        setProperties(neighborhoodProperties);
-      }
+      setNeighborhood(getMappedNeighborhoodById(id));
+      setProperties(getMappedPropertiesByNeighborhood(id));
     }
-  }, [id, getNeighborhoodById, getPropertiesByNeighborhood]);
+  }, [id, agentNeighborhoods, filteredProperties]);
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
@@ -34,7 +45,7 @@ const NeighborhoodView = () => {
         <NeighborhoodHeader 
           neighborhood={neighborhood}
           propertiesCount={properties.length}
-          neighborhoods={neighborhoods}
+          neighborhoods={mappedNeighborhoods}
           selectedId={id}
         />
         

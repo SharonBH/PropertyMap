@@ -14,7 +14,7 @@ public static class SearchPropertyTypesEndpoint
     internal static RouteHandlerBuilder MapSearchPropertyTypesEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/propertytypes/search", async (ISender mediator, [FromBody] SearchPropertyTypesCommand command) =>
+            .MapPost("/search", async (ISender mediator, [FromBody] SearchPropertyTypesCommand command) =>
             {
                 var response = await mediator.Send(command);
                 return Results.Ok(response);

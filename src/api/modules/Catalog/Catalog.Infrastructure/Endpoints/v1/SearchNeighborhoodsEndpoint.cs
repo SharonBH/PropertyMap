@@ -14,7 +14,7 @@ public static class SearchNeighborhoodsEndpoint
     internal static RouteHandlerBuilder MapSearchNeighborhoodsEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/neighborhoods/search", async (ISender mediator, [FromBody] SearchNeighborhoodsCommand command) =>
+            .MapPost("/search", async (ISender mediator, [FromBody] SearchNeighborhoodsCommand command) =>
             {
                 var response = await mediator.Send(command);
                 return Results.Ok(response);

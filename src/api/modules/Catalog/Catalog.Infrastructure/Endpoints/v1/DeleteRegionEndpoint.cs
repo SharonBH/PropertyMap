@@ -11,7 +11,7 @@ public static class DeleteRegionEndpoint
     internal static RouteHandlerBuilder MapRegionDeleteEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapDelete("/regions/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapDelete("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 await mediator.Send(new DeleteRegionCommand(id));
                 return Results.NoContent();

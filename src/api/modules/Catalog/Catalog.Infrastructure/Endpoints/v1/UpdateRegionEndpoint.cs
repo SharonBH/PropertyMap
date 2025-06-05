@@ -11,7 +11,7 @@ public static class UpdateRegionEndpoint
     internal static RouteHandlerBuilder MapRegionUpdateEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPut("/regions/{id:guid}", async (Guid id, UpdateRegionCommand request, ISender mediator) =>
+            .MapPut("/{id:guid}", async (Guid id, UpdateRegionCommand request, ISender mediator) =>
             {
                 if (id != request.Id) return Results.BadRequest();
                 var response = await mediator.Send(request);

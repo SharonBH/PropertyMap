@@ -11,7 +11,7 @@ public static class UpdateCityEndpoint
     internal static RouteHandlerBuilder MapCityUpdateEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPut("/cities/{id:guid}", async (Guid id, UpdateCityCommand request, ISender mediator) =>
+            .MapPut("/{id:guid}", async (Guid id, UpdateCityCommand request, ISender mediator) =>
             {
                 if (id != request.Id) return Results.BadRequest();
                 var response = await mediator.Send(request);

@@ -11,7 +11,7 @@ public static class GetRegionEndpoint
     internal static RouteHandlerBuilder MapGetRegionEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/regions/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapGet("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var response = await mediator.Send(new GetRegionRequest(id));
                 return Results.Ok(response);

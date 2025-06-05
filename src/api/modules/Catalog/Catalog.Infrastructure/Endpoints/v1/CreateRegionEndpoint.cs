@@ -11,7 +11,7 @@ public static class CreateRegionEndpoint
     internal static RouteHandlerBuilder MapRegionCreationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/regions", async (CreateRegionCommand request, ISender mediator) =>
+            .MapPost("", async (CreateRegionCommand request, ISender mediator) =>
             {
                 var response = await mediator.Send(request);
                 return Results.Ok(response);

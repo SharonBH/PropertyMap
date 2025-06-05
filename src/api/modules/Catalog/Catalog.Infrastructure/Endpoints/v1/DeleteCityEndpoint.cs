@@ -11,7 +11,7 @@ public static class DeleteCityEndpoint
     internal static RouteHandlerBuilder MapCityDeleteEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapDelete("/cities/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapDelete("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 await mediator.Send(new DeleteCityCommand(id));
                 return Results.NoContent();

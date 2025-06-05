@@ -2,11 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
-import { Neighborhood } from "@/lib/data";
+import { NeighborhoodResponse } from "@/api/homemapapi";
 
 interface UseViewerInitializerProps {
   containerRef: React.RefObject<HTMLDivElement>;
-  neighborhood: Neighborhood;
+  neighborhood: NeighborhoodResponse;
   onViewerReady: (viewer: Viewer, markersPlugin: MarkersPlugin) => void;
 }
 

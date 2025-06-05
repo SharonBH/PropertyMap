@@ -11,7 +11,7 @@ public static class CreateReviewEndpoint
     internal static RouteHandlerBuilder MapReviewCreationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/Reviews", async (CreateReviewCommand request, ISender mediator) =>
+            .MapPost("", async (CreateReviewCommand request, ISender mediator) =>
             {
                 var response = await mediator.Send(request);
                 return Results.Ok(response);

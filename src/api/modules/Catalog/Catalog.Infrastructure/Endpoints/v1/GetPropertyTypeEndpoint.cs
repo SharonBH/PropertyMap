@@ -11,7 +11,7 @@ public static class GetPropertyTypeEndpoint
     internal static RouteHandlerBuilder MapGetPropertyTypeEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/propertytypes/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapGet("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var response = await mediator.Send(new GetPropertyTypeRequest(id));
                 return Results.Ok(response);

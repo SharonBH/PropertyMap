@@ -31,12 +31,12 @@ public static class CatalogModule
             brandGroup.MapBrandUpdateEndpoint();
             brandGroup.MapBrandDeleteEndpoint();
 
-            var AgencyGroup = app.MapGroup("agencies").WithTags("agencies");
-            AgencyGroup.MapAgencyCreationEndpoint();
-            AgencyGroup.MapGetAgencyEndpoint();
-            AgencyGroup.MapGetAgencyListEndpoint();
-            AgencyGroup.MapAgencyUpdateEndpoint();
-            AgencyGroup.MapAgencyDeleteEndpoint();
+            var agencyGroup = app.MapGroup("agencies").WithTags("agencies");
+            agencyGroup.MapAgencyCreationEndpoint();
+            agencyGroup.MapGetAgencyEndpoint();
+            agencyGroup.MapGetAgencyListEndpoint();
+            agencyGroup.MapAgencyUpdateEndpoint();
+            agencyGroup.MapAgencyDeleteEndpoint();
 
             var regionGroup = app.MapGroup("regions").WithTags("regions");
             regionGroup.MapRegionCreationEndpoint();

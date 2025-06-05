@@ -11,7 +11,7 @@ public static class DeleteReviewEndpoint
     internal static RouteHandlerBuilder MapReviewDeleteEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapDelete("/Reviews/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapDelete("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 await mediator.Send(new DeleteReviewCommand(id));
                 return Results.NoContent();

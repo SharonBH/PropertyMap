@@ -1,4 +1,3 @@
-
 import React from "react";
 import AgentInfo from "@/components/AgentInfo";
 import { useProperties } from "@/hooks/useProperties";
@@ -8,22 +7,33 @@ import SoldPropertiesSection from "@/components/HomePage/SoldPropertiesSection";
 import ReviewsSection from "@/components/HomePage/ReviewsSection";
 import WhyChooseUsSection from "@/components/HomePage/WhyChooseUsSection";
 import Footer from "@/components/HomePage/Footer";
+import { Neighborhood, Property } from "@/lib/data";
+import { NeighborhoodResponse, PropertyResponse } from "@/api/homemapapi";
+import { mapNeighborhood, mapProperty, mapReview } from "@/lib/apiMappers";
 
 const Index = () => {
-  const { 
+  const {
     currentAgent,
-    agentNeighborhoods, 
-    selectedNeighborhood, 
+    agentNeighborhoods,
+    selectedNeighborhood,
     filteredProperties,
     agentProperties,
     soldProperties,
     agentReviews,
-    selectNeighborhood
+    selectNeighborhood,
   } = useProperties();
-  
-  console.log('Sold Properties:', soldProperties);
-  console.log('Agent Reviews:', agentReviews);
-  
+
+  // Map API data to UI models
+  const neighborhoods: Neighborhood[] = agentNeighborhoods.map(mapNeighborhood);
+  const filteredProps: Property[] = filteredProperties.map(mapProperty);
+  const agentProps: Property[] = agentProperties.map(mapProperty);
+  const soldProps: Property[] = (soldProperties || []).map(mapProperty);
+  const reviews = (agentReviews || []).map(mapReview);
+
+  //check if user is logged in, if not redirect to login page
+  if (!currentAgent) {
+    window.location.href = "/login";
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-estate-cream/30">
       <main className="container px-4 py-8 animate-fade-in">
@@ -33,21 +43,21 @@ const Index = () => {
         <div className="mb-8">
           <AgentInfo 
             agent={currentAgent}
-            neighborhoodCount={agentNeighborhoods.length}
-            propertyCount={agentProperties.length}
+            neighborhoodCount={neighborhoods.length}
+            propertyCount={agentProps.length}
           />
         </div>
         
         <PropertySection 
-          neighborhoods={agentNeighborhoods}
+          neighborhoods={neighborhoods}
           selectedNeighborhood={selectedNeighborhood}
-          filteredProperties={filteredProperties}
+          filteredProperties={filteredProps}
           onSelectNeighborhood={selectNeighborhood}
         />
         
-        <SoldPropertiesSection soldProperties={soldProperties || []} />
+        <SoldPropertiesSection soldProperties={soldProps} />
         
-        <ReviewsSection reviews={agentReviews || []} />
+        <ReviewsSection reviews={reviews} />
         
         <WhyChooseUsSection />
       </main>

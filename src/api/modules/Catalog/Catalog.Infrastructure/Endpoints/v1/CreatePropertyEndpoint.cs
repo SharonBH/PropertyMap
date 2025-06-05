@@ -12,7 +12,7 @@ public static class CreatePropertyEndpoint
     internal static RouteHandlerBuilder MapPropertyCreationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/properties", async (CreatePropertyCommand command, ISender mediator) =>
+            .MapPost("/", async (CreatePropertyCommand command, ISender mediator) =>
             {
                 var response = await mediator.Send(command);
                 return Results.Created($"/properties/{response.Id}", response);

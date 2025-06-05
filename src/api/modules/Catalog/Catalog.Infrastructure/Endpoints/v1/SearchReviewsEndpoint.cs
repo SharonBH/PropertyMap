@@ -14,7 +14,7 @@ public static class SearchReviewsEndpoint
     internal static RouteHandlerBuilder MapSearchReviewsEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/Reviews/search", async (ISender mediator, [FromBody] SearchReviewsCommand command) =>
+            .MapPost("/search", async (ISender mediator, [FromBody] SearchReviewsCommand command) =>
             {
                 var response = await mediator.Send(command);
                 return Results.Ok(response);

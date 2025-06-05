@@ -7,10 +7,11 @@ import { Neighborhood, Property } from "@/lib/data";
 import { Building, Map } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { NeighborhoodResponse } from "@/api/homemapapi";
 
 interface PropertySectionProps {
-  neighborhoods: Neighborhood[];
-  selectedNeighborhood: Neighborhood | null;
+  neighborhoods: NeighborhoodResponse[];
+  selectedNeighborhood: NeighborhoodResponse | null;
   filteredProperties: Property[];
   onSelectNeighborhood: (neighborhoodId: string) => void;
 }

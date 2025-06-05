@@ -1,3 +1,4 @@
+import { AgencyResponse, NeighborhoodResponse } from "@/api/homemapapi";
 
 export interface Property {
   id: string;
@@ -38,8 +39,9 @@ export interface Agent {
   email: string;
   phone: string;
   image: string;
-  neighborhoods: string[];
+  neighborhoods: NeighborhoodResponse[];
   overallRating?: number;
+  agency: AgencyResponse; // Added agency field
 }
 
 export interface Neighborhood {
@@ -54,7 +56,7 @@ export interface Neighborhood {
 }
 
 // Mock Neighborhoods
-export const neighborhoods: Neighborhood[] = [
+/* export const neighborhoods: Neighborhood[] = [
   {
     id: "n1",
     name: "רמת אביב",
@@ -125,10 +127,10 @@ export const neighborhoods: Neighborhood[] = [
     },
     zoom: 15,
   },
-];
+]; */
 
 // Mock Agents
-export const agents: Agent[] = [
+/* export const agents: Agent[] = [
   {
     id: "a1",
     name: "יעל לוי",
@@ -147,7 +149,7 @@ export const agents: Agent[] = [
     neighborhoods: ["n3", "n4", "n6", "n7"],
     overallRating: 4.5,
   },
-];
+]; */
 
 // Mock Reviews
 export const reviews: Review[] = [
@@ -657,14 +659,14 @@ export const formatDate = (dateString: string): string => {
 };
 
 // Get neighborhood by ID
-export const getNeighborhoodById = (id: string): Neighborhood | undefined => {
+/* export const getNeighborhoodById = (id: string): Neighborhood | undefined => {
   return neighborhoods.find((n) => n.id === id);
-};
+}; */
 
 // Get agent by ID
-export const getAgentById = (id: string): Agent | undefined => {
+/* export const getAgentById = (id: string): Agent | undefined => {
   return agents.find((a) => a.id === id);
-};
+}; */
 
 // Get properties by neighborhood
 export const getPropertiesByNeighborhood = (

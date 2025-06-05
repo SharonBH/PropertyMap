@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   FormField,
@@ -17,18 +16,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
-import { Neighborhood } from '@/lib/data';
+import { NeighborhoodResponse, PropertyTypeResponse } from '@/api/homemapapi';
 
 interface PropertyFormFieldsProps {
   form: UseFormReturn<any>;
-  neighborhoods: Neighborhood[];
+  neighborhoods: NeighborhoodResponse[];
   onNeighborhoodChange: (value: string) => void;
+  propertyTypes: PropertyTypeResponse[];
+  loadingTypes?: boolean;
 }
 
 const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
   form,
   neighborhoods,
   onNeighborhoodChange,
+  propertyTypes,
+  loadingTypes,
 }) => {
   return (
     <>
@@ -37,9 +40,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Title</FormLabel>
+            <FormLabel>כותרת</FormLabel>
             <FormControl>
-              <Input placeholder="Enter property title" {...field} />
+              <Input placeholder="הזן כותרת לנכס" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -51,9 +54,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>תיאור</FormLabel>
             <FormControl>
-              <Textarea placeholder="Enter property description" {...field} />
+              <Textarea placeholder="הזן תיאור לנכס" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -66,9 +69,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
           name="price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Price (₪)</FormLabel>
+              <FormLabel>מחיר (₪)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Price" {...field} />
+                <Input type="number" placeholder="מחיר" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,9 +83,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
           name="size"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Size (m²)</FormLabel>
+              <FormLabel>גודל (מ"ר)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Size" {...field} />
+                <Input type="number" placeholder="גודל" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,9 +99,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
           name="bedrooms"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bedrooms</FormLabel>
+              <FormLabel>חדרי שינה</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Bedrooms" {...field} />
+                <Input type="number" placeholder="חדרי שינה" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -110,9 +113,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
           name="bathrooms"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bathrooms</FormLabel>
+              <FormLabel>חדרי רחצה</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Bathrooms" {...field} />
+                <Input type="number" placeholder="חדרי רחצה" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,9 +128,9 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Address</FormLabel>
+            <FormLabel>כתובת</FormLabel>
             <FormControl>
-              <Input placeholder="Enter property address" {...field} />
+              <Input placeholder="הזן כתובת נכס" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -139,17 +142,17 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
         name="status"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Status</FormLabel>
+            <FormLabel>סטטוס</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="בחר סטטוס" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="sold">Sold</SelectItem>
+                <SelectItem value="active">פעיל</SelectItem>
+                <SelectItem value="pending">ממתין</SelectItem>
+                <SelectItem value="sold">נמכר</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -162,7 +165,7 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
         name="neighborhoodId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Neighborhood</FormLabel>
+            <FormLabel>שכונה</FormLabel>
             <Select 
               onValueChange={(value) => {
                 field.onChange(value);
@@ -172,7 +175,7 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select neighborhood" />
+                  <SelectValue placeholder="בחר שכונה" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -183,6 +186,43 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="propertyTypeId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>סוג נכס</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingTypes}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingTypes ? "טוען סוגי נכסים..." : "בחר סוג נכס"} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {propertyTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="featureList"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>תכונות (מופרדות בפסיק)</FormLabel>
+            <FormControl>
+              <Input placeholder="הזן תכונות מופרדות בפסיק" {...field} />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

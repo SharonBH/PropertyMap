@@ -11,7 +11,7 @@ public static class UpdateReviewEndpoint
     internal static RouteHandlerBuilder MapReviewUpdateEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPut("/Reviews/{id:guid}", async (Guid id, UpdateReviewCommand request, ISender mediator) =>
+            .MapPut("/{id:guid}", async (Guid id, UpdateReviewCommand request, ISender mediator) =>
             {
                 if (id != request.Id) return Results.BadRequest();
                 var response = await mediator.Send(request);

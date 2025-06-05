@@ -1,7 +1,8 @@
 // File: apps/react/src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Agent, agents } from "@/lib/data";
+import { Agent } from "@/lib/data";
 import { settings } from "@/settings";
+import { tokenGenerationEndpoint, getMeEndpoint, searchAgenciesEndpoint, searchNeighborhoodsEndpoint } from "../api/homemapapi";
 
 interface AuthContextType {
   currentAgent: Agent | null;
@@ -114,84 +115,98 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+
   const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+  setIsLoading(true);
 
-    if (settings.useMockLogin) {
-      // Mock login logic
-      console.log("Attempting mock login...");
-      // You can use a predefined mock agent or the first one from your data
-      const mockAgent = agents[0] || { id: "mock-user", name: "Mock User", email: "mock@example.com", phone: "", image: "/avatars/1.png", neighborhoods: [] };
-      setCurrentAgent(mockAgent);
-      localStorage.setItem("currentAgent", JSON.stringify(mockAgent));
-      setIsAuthenticated(true);
-      setIsLoading(false);
-      console.log("Mock login successful for:", mockAgent.email);
-      return true;
-    }
-
-    // Real API login logic
-    try {
-      const response = await fetch(`${settings.baseAPI}/api/token`, {
-        method: "POST",
+  try {
+    // Call the token generation endpoint
+const tokenRes = await tokenGenerationEndpoint(
+      { email, password },
+      {
         headers: {
+          "tenant": "root", // or use a dynamic value if needed
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    if (tokenRes && tokenRes.token && tokenRes.refreshToken && tokenRes.refreshTokenExpiryTime) {
+      setIsAuthenticated(true);
+      localStorage.setItem("authToken", tokenRes.token);
+      localStorage.setItem("refreshToken", tokenRes.refreshToken);
+      localStorage.setItem("refreshTokenExpiryTime", tokenRes.refreshTokenExpiryTime);
+
+      // Fetch user profile using the new token
+      const userProfileRes = await getMeEndpoint({
+        headers: {
+          "Authorization": `Bearer ${tokenRes.token}`,
           "Content-Type": "application/json",
           "tenant": "root",
         },
-        body: JSON.stringify({ email, password }),
       });
-      console.log("Login response:", response);
-      if (!response.ok) {
-        setIsAuthenticated(false);
-        return false;
-      }
+      if (userProfileRes) {
+        // Fetch agency (first result) and all neighborhoods for the agent
+  let agency = null;
+  let neighborhoods: any[] = [];
 
-      const data = await response.json();
-      if (data && data.token && data.refreshToken && data.refreshTokenExpiryTime) {
-        setIsAuthenticated(true);
-        localStorage.setItem("authToken", data.token);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        localStorage.setItem("refreshTokenExpiryTime", data.refreshTokenExpiryTime);
-        
-        // Fetch user profile to set currentAgent
-        // This part assumes your /api/users/profile returns an Agent-like object
-        // or you might need to adapt it or use a default/mock agent structure
-        const userProfile = await fetchUserProfile();
-        if (userProfile) {
-          // Assuming userProfile structure matches Agent or can be mapped
-          // You might need to adjust this mapping based on your API response
-          const agentFromProfile: Agent = {
-            id: userProfile.id || email, // Adjust as per your API response
-            name: userProfile.name || email, // Adjust as per your API response
-            email: userProfile.email || email,
-            phone: userProfile.phone || "",
-            image: userProfile.image || "", // Default image if not provided
-            neighborhoods: userProfile.neighborhoods || [],
-          };
-          setCurrentAgent(agentFromProfile);
-          localStorage.setItem("currentAgent", JSON.stringify(agentFromProfile));
-        } else {
-          // Fallback if profile fetch fails or doesn't provide enough info
-          // This is a simple fallback, you might want a more robust solution
-          const fallbackAgent: Agent = { id: email, name: email, email: email, phone: "", image: "", neighborhoods: [] };
-          setCurrentAgent(fallbackAgent);
-          localStorage.setItem("currentAgent", JSON.stringify(fallbackAgent));
-          console.warn("Could not fetch user profile, using fallback agent data.");
-        }
-        return true;
+  // Search for agencies (assuming you can filter by agent email or id)
+  const agenciesRes = await searchAgenciesEndpoint({
+    pageNumber: 1,
+    pageSize: 1,
+  });
+  if (agenciesRes && agenciesRes.items && agenciesRes.items.length > 0) {
+    agency = agenciesRes.items[0];
+  }
+
+  const neighborhoodsRes = await searchNeighborhoodsEndpoint({
+    pageNumber: 1,
+    pageSize: 10, // or whatever is appropriate
+  });
+  if (neighborhoodsRes && neighborhoodsRes.items) {
+    neighborhoods = neighborhoodsRes.items;
+  }
+
+        // Map userProfile to Agent type
+        const agentFromProfile: Agent = {
+          id: userProfileRes.id || email,
+          name: userProfileRes.firstName && userProfileRes.lastName
+            ? `${userProfileRes.firstName} ${userProfileRes.lastName}`
+            : userProfileRes.userName || email,
+          email: userProfileRes.email || email,
+          phone: userProfileRes.phoneNumber || "",
+          image: userProfileRes.imageUrl || "",
+          agency: agency,
+          neighborhoods: neighborhoods,
+        };
+        setCurrentAgent(agentFromProfile);
+        localStorage.setItem("currentAgent", JSON.stringify(agentFromProfile));
+      } else {
+        // Fallback if profile fetch fails
+        const fallbackAgent: Agent = { 
+          id: email, 
+          name: email, 
+          email: email, 
+          phone: "", 
+          image: "", 
+          agency: { id: "NA", name: "Unknown Agency" }, // Provide minimal AgencyResponse
+          neighborhoods: [] 
+        };
+        setCurrentAgent(fallbackAgent);
+        localStorage.setItem("currentAgent", JSON.stringify(fallbackAgent));
       }
-      // If tokens are not in data
-      setIsAuthenticated(false);
-      return false;
-    } catch (error) {
-      console.error("Login error:", error);
-      setIsAuthenticated(false);
-      return false;
-    } finally {
-      setIsLoading(false);
+      return true;
     }
-  };
-
+    setIsAuthenticated(false);
+    return false;
+  } catch (error) {
+    console.error("Login error:", error);
+    setIsAuthenticated(false);
+    return false;
+  } finally {
+    setIsLoading(false);
+  }
+};
   const logout = () => {
     setCurrentAgent(null);
     setIsAuthenticated(false);

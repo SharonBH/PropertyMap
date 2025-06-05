@@ -4,10 +4,11 @@ import { Neighborhood } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { Map } from "lucide-react";
 import { Link } from "react-router-dom";
+import { NeighborhoodResponse } from "@/api/homemapapi";
 
 interface NeighborhoodSelectorProps {
-  neighborhoods: Neighborhood[];
-  selectedNeighborhood: Neighborhood | null;
+  neighborhoods: NeighborhoodResponse[];
+  selectedNeighborhood: NeighborhoodResponse | null;
   onSelectNeighborhood: (neighborhoodId: string) => void;
 }
 

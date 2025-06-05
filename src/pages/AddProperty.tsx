@@ -32,7 +32,7 @@ const formSchema = z.object({
 
 const AddProperty = () => {
   const navigate = useNavigate();
-  const { currentAgent, agentNeighborhoods } = useProperties();
+  const { agentNeighborhoods } = useProperties();
   const { toast } = useToast();
   const [selectedNeighborhood, setSelectedNeighborhood] = React.useState(agentNeighborhoods[0]);
   const [propertyTypes, setPropertyTypes] = React.useState<any[]>([]);
@@ -70,9 +70,7 @@ const AddProperty = () => {
       name: values.title,
       description: values.description,
       neighborhoodId: values.neighborhoodId,
-      agencyId: currentAgent?.agency?.id || "",
       address: values.address,
-      listedDate: new Date().toISOString(),
       askingPrice: Number(values.price),
       size: Number(values.size),
       rooms: Number(values.bedrooms),
@@ -100,7 +98,6 @@ const AddProperty = () => {
     const neighborhood = agentNeighborhoods.find(n => n.id === value);
     if (neighborhood) {
       setSelectedNeighborhood(neighborhood);
-      // Reset marker position when neighborhood changes
       form.setValue("markerPosition", { yaw: 0, pitch: 0 });
     }
   };

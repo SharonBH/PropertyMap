@@ -2,13 +2,13 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
-import { Neighborhood } from "@/lib/data";
 import { useViewerInitializer } from "./useViewerInitializer";
 import { useMarkerHandler } from "./useMarkerHandler";
+import { NeighborhoodResponse } from "@/api/homemapapi";
 
 interface UseMarkerPositionerProps {
   containerRef: React.RefObject<HTMLDivElement>;
-  neighborhood: Neighborhood;
+  neighborhood: NeighborhoodResponse;
   onPositionChange: (position: { yaw: number; pitch: number }) => void;
 }
 

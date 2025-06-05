@@ -27,7 +27,9 @@ const AgentFooter: React.FC<AgentFooterProps> = ({ agent }) => {
         
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
           © {new Date().getFullYear()} נדל״ן - {agent.name}. כל הזכויות שמורות.
-          <div className="mt-2">Powered by Lovable</div>
+          <div className="mt-2">
+            Powered by <a href="https://sbh.co.il" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">SBH#DEV</a>
+          </div>
         </div>
       </div>
     </footer>

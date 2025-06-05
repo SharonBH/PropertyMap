@@ -11,7 +11,7 @@ public static class UpdatePropertyTypeEndpoint
     internal static RouteHandlerBuilder MapPropertyTypeUpdateEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPut("/propertytypes/{id:guid}", async (Guid id, UpdatePropertyTypeCommand request, ISender mediator) =>
+            .MapPut("/{id:guid}", async (Guid id, UpdatePropertyTypeCommand request, ISender mediator) =>
             {
                 if (id != request.Id) return Results.BadRequest();
                 var response = await mediator.Send(request);

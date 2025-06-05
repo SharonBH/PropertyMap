@@ -11,7 +11,7 @@ public static class GetNeighborhoodEndpoint
     internal static RouteHandlerBuilder MapGetNeighborhoodEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/neighborhoods/{id:guid}", async (Guid id, ISender mediator) =>
+            .MapGet("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 var response = await mediator.Send(new GetNeighborhoodRequest(id));
                 return Results.Ok(response);

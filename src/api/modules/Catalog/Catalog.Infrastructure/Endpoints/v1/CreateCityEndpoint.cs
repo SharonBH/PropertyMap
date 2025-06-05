@@ -11,7 +11,7 @@ public static class CreateCityEndpoint
     internal static RouteHandlerBuilder MapCityCreationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/cities", async (CreateCityCommand request, ISender mediator) =>
+            .MapPost("", async (CreateCityCommand request, ISender mediator) =>
             {
                 var response = await mediator.Send(request);
                 return Results.Ok(response);

@@ -11,7 +11,7 @@ public static class CreatePropertyTypeEndpoint
     internal static RouteHandlerBuilder MapPropertyTypeCreationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/propertytypes", async (CreatePropertyTypeCommand request, ISender mediator) =>
+            .MapPost("", async (CreatePropertyTypeCommand request, ISender mediator) =>
             {
                 var response = await mediator.Send(request);
                 return Results.Ok(response);
