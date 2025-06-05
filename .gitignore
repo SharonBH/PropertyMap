@@ -459,3 +459,4 @@ $RECYCLE.BIN/
 
 # **/Internal/Generated
 src/api/server/.env
+src/api/server/appsettings.Development.json
