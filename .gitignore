@@ -458,5 +458,5 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 
 **/Internal/Generated
-src/api/server/appsettings.Development.json
-src/api/server/appsettings.Development.json
+src/api/server/appsettings.*
+src/api/server/.env
