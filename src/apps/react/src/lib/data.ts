@@ -21,6 +21,8 @@ export interface Property {
   status: "active" | "sold" | "pending";
   soldDate?: string;
   soldPrice?: number;
+  propertyTypeId?: string; // Added propertyTypeId field
+  propertyStatusId?: string; // Added propertyStatusId field
 }
 
 export interface Review {

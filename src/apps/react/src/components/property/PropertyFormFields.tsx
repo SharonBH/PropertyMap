@@ -16,23 +16,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
-import { NeighborhoodResponse, PropertyTypeResponse } from '@/api/homemapapi';
+import { NeighborhoodResponse, PropertyTypeResponse, PropertyStatusResponse } from '@/api/homemapapi';
 
-interface PropertyFormFieldsProps {
-  form: UseFormReturn<any>;
+interface PropertyFormFieldsProps<T = unknown> {
+  form: UseFormReturn<T>;
   neighborhoods: NeighborhoodResponse[];
   onNeighborhoodChange: (value: string) => void;
   propertyTypes: PropertyTypeResponse[];
   loadingTypes?: boolean;
+  propertyStatuses: PropertyStatusResponse[];
+  loadingStatuses?: boolean;
 }
 
-const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
+const PropertyFormFields = <T = unknown>({
   form,
   neighborhoods,
   onNeighborhoodChange,
   propertyTypes,
   loadingTypes,
-}) => {
+  propertyStatuses,
+  loadingStatuses,
+}: PropertyFormFieldsProps<T>) => {
   return (
     <>
       <FormField
@@ -139,29 +143,6 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
 
       <FormField
         control={form.control}
-        name="status"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>סטטוס</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר סטטוס" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="active">פעיל</SelectItem>
-                <SelectItem value="pending">ממתין</SelectItem>
-                <SelectItem value="sold">נמכר</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
         name="neighborhoodId"
         render={({ field }) => (
           <FormItem>
@@ -206,6 +187,29 @@ const PropertyFormFields: React.FC<PropertyFormFieldsProps> = ({
               <SelectContent>
                 {propertyTypes.map((type) => (
                   <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="propertyStatusId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>סטטוס נכס</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingStatuses}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingStatuses ? "טוען סטטוסים..." : "בחר סטטוס נכס"} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {propertyStatuses.map((status) => (
+                  <SelectItem key={String(status.id)} value={String(status.id)}>{status.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

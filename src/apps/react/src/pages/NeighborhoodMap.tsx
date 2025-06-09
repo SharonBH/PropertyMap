@@ -23,7 +23,7 @@ function mapProperty(p: PropertyResponse): Property {
     id: p.id || "",
     title: p.name || "",
     address: p.address || "",
-    neighborhood: p.neighborhoodName || "",
+    neighborhood: p.neighborhoodId || "",
     price: p.askingPrice || 0,
     size: p.size || 0,
     bedrooms: p.rooms || 0,
@@ -67,7 +67,7 @@ const NeighborhoodMap = () => {
       setNeighborhood(foundNeighborhood);
       setProps(getPropertiesByNeighborhood(id));
     }
-  }, [id, filteredProperties, agentNeighborhoods]);
+  }, [id, filteredProperties, agentNeighborhoods, getNeighborhoodById, getPropertiesByNeighborhood]);
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 relative">
       <Navbar />

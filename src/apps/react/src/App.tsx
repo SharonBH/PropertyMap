@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +17,7 @@ import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
 import AddProperty from "./pages/AddProperty";
 import LoginPage from "./pages/LoginPage";
+import EditProperty from "./pages/EditProperty";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +54,22 @@ const App = () => (
               <Route path="/about" element={<AboutPage />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route 
+                path="/edit-property/:id" 
+                element={
+                  <ProtectedRoute>
+                    <EditProperty />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path="/add-property" 
+                element={
+                  <ProtectedRoute>
+                    <AddProperty />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

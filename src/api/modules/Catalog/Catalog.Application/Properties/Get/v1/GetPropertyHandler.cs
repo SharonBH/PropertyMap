@@ -20,7 +20,7 @@ public sealed class GetPropertyHandler(
             {
                 var PropertyItem = await repository.GetByIdAsync(request.Id, cancellationToken);
                 if (PropertyItem == null) throw new PropertyNotFoundException(request.Id);
-                return new PropertyResponse(PropertyItem.Id, PropertyItem.Name, PropertyItem.Description, PropertyItem.Address, PropertyItem.AskingPrice, PropertyItem.Size, PropertyItem.Rooms, PropertyItem.Bathrooms, PropertyItem.Neighborhood.Name, PropertyItem.PropertyType.Name, PropertyItem.ListedDate, PropertyItem.SoldDate, PropertyItem.SoldPrice, PropertyItem.FeatureList, PropertyItem.PropertyStatus.Name, PropertyItem.MarkerYaw, PropertyItem.MarkerPitch);
+                return new PropertyResponse(PropertyItem.Id, PropertyItem.Name, PropertyItem.Description, PropertyItem.Address, PropertyItem.AskingPrice, PropertyItem.Size, PropertyItem.Rooms, PropertyItem.Bathrooms, PropertyItem.NeighborhoodId, PropertyItem.PropertyTypeId, PropertyItem.ListedDate, PropertyItem.SoldDate, PropertyItem.SoldPrice, PropertyItem.FeatureList, PropertyItem.PropertyStatusId, PropertyItem.MarkerYaw, PropertyItem.MarkerPitch);
             },
             cancellationToken: cancellationToken);
         return item!;

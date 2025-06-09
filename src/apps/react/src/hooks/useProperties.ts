@@ -73,7 +73,7 @@ export function useProperties() {
   useEffect(() => {
     if (selectedNeighborhood) {
       const props = allProperties.filter(
-        (prop: PropertyResponse) => prop.neighborhoodName === selectedNeighborhood.name
+        (prop: PropertyResponse) => prop.neighborhoodId === selectedNeighborhood.id
       );
       setFilteredProperties(props);
     } else {

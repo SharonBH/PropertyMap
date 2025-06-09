@@ -1,12 +1,14 @@
-
 import React from "react";
 import { Property, Neighborhood, formatPrice } from "@/lib/data";
 import { Edit, Trash, Map, ChevronUp, ChevronDown } from "lucide-react";
 import { Building } from "lucide-react";
+import { PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
 
 interface PropertiesTableProps {
   properties: Property[];
   neighborhoods: Neighborhood[];
+  propertyTypes: PropertyTypeResponse[];
+  propertyStatuses: PropertyStatusResponse[];
   sortBy: string;
   sortDirection: "asc" | "desc";
   handleSort: (key: string) => void;
@@ -17,6 +19,8 @@ interface PropertiesTableProps {
 const PropertiesTable: React.FC<PropertiesTableProps> = ({
   properties,
   neighborhoods,
+  propertyTypes,
+  propertyStatuses,
   sortBy,
   sortDirection,
   handleSort,
@@ -74,6 +78,12 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
               </button>
             </th>
             <th className="px-6 py-3 text-right font-medium text-gray-600">
+              סוג נכס
+            </th>
+            <th className="px-6 py-3 text-right font-medium text-gray-600">
+              סטטוס נכס
+            </th>
+            <th className="px-6 py-3 text-right font-medium text-gray-600">
               פעולות
             </th>
           </tr>
@@ -84,6 +94,12 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
             properties.map((property) => {
               const neighborhood = neighborhoods.find(
                 (n) => n.id === property.neighborhood
+              );
+              const propertyType = propertyTypes.find(
+                (t) => t.id === property.propertyTypeId
+              );
+              const propertyStatus = propertyStatuses.find(
+                (s) => s.id === property.propertyStatusId
               );
               
               return (
@@ -117,6 +133,12 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
                     {new Date(property.createdAt).toLocaleDateString("he-IL")}
                   </td>
                   <td className="px-6 py-4">
+                    {propertyType?.name || "-"}
+                  </td>
+                  <td className="px-6 py-4">
+                    {propertyStatus?.name || "-"}
+                  </td>
+                  <td className="px-6 py-4">
                     <div className="flex space-x-3 rtl:space-x-reverse">
                       <button
                         onClick={() => handleEditProperty(property.id)}
@@ -139,7 +161,7 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
             })
           ) : (
             <tr>
-              <td colSpan={5} className="px-6 py-8 text-center">
+              <td colSpan={7} className="px-6 py-8 text-center">
                 <div className="flex flex-col items-center">
                   <Building className="h-12 w-12 text-gray-400 mb-3" />
                   <p className="text-gray-600 mb-2">לא נמצאו נכסים</p>

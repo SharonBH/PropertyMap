@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import PropertyCard from "@/components/PropertyCard";
 import SoldPropertyCard from "@/components/SoldPropertyCard";
@@ -29,6 +28,7 @@ const PropertiesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const propertiesPerPage = 6;
+  const navigate = useNavigate();
   
   // Filter properties based on search term
   const filterProperties = (propertyList) => {
@@ -61,15 +61,23 @@ const PropertiesPage = () => {
     setCurrentPage(page);
     window.scrollTo(0, 0);
   };
+  
+  const handleAddProperty = () => {
+    navigate("/add-property");
+  };
+  
+  const handleEditProperty = (id: string) => {
+    navigate(`/edit-property/${id}`);
+  };
 
   return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navbar />
       
       <main className="container px-4 py-8">
-        <header className="mb-8">
+        <header className="mb-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">הנכסים שלנו</h1>
-          <p className="text-muted-foreground">רשימת הנכסים המלאה של הסוכנות שלנו, כולל נכסים שנמכרו לאחרונה</p>
+          <Button onClick={handleAddProperty} className="ml-4">הוסף נכס חדש</Button>
         </header>
         
         <div className="mb-8">
@@ -77,7 +85,7 @@ const PropertiesPage = () => {
             {/* Agent info */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">סוכן נדל"ן:</span>
-              <span className="font-medium">{currentAgent.name}</span>
+              <span className="font-medium">{currentAgent && currentAgent.name ? currentAgent.name : "---"}</span>
             </div>
             
             {/* Search box */}
@@ -140,13 +148,22 @@ const PropertiesPage = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {activePropertiesPage.map((property) => (
-                      <Link 
-                        key={property.id} 
-                        to={`/property/${property.id}`}
-                        className="block transition-transform hover:scale-[1.01]"
-                      >
-                        <PropertyCard property={property} />
-                      </Link>
+                      <div key={property.id} className="relative group">
+                        <Link 
+                          to={`/property/${property.id}`}
+                          className="block transition-transform hover:scale-[1.01]"
+                        >
+                          <PropertyCard property={property} />
+                        </Link>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition"
+                          onClick={() => handleEditProperty(property.id)}
+                        >
+                          ערוך
+                        </Button>
+                      </div>
                     ))}
                   </div>
                   

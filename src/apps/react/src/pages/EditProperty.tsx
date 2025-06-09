@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import MarkerPositioner from "@/components/MarkerPositioner";
 import Navbar from "@/components/Navbar";
 import PropertyFormFields from "@/components/property/PropertyFormFields";
-import { searchPropertyTypesEndpoint, createPropertyEndpoint, searchPropertyStatusesEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
+import { searchPropertyTypesEndpoint, searchPropertyStatusesEndpoint, updatePropertyEndpoint, getPropertyEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
 
 const formSchema = z.object({
   title: z.string().min(2, "הכותרת חייבת להכיל לפחות 2 תווים"),
@@ -20,7 +20,7 @@ const formSchema = z.object({
   bathrooms: z.string().regex(/^\d+$/, "יש להזין מספר חוקי"),
   size: z.string().regex(/^\d+$/, "יש להזין מספר חוקי"),
   address: z.string().min(5, "הכתובת חייבת להכיל לפחות 5 תווים"),
-  status: z.enum(["active", "pending", "sold"], { errorMap: () => ({ message: "יש לבחור סטטוס" }) }),
+  propertyStatusId: z.string().min(1, "יש לבחור סטטוס"),
   neighborhoodId: z.string().min(1, "יש לבחור שכונה"),
   propertyTypeId: z.string().min(1, "יש לבחור סוג נכס"),
   featureList: z.string().optional(),
@@ -28,36 +28,19 @@ const formSchema = z.object({
     yaw: z.number(),
     pitch: z.number(),
   }),
-  propertyStatusId: z.string().min(1, "יש לבחור סטטוס"),
 });
 
-const AddProperty = () => {
+const EditProperty = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { currentAgent, agentNeighborhoods } = useProperties();
   const { toast } = useToast();
   const [selectedNeighborhood, setSelectedNeighborhood] = React.useState(agentNeighborhoods[0]);
   const [propertyTypes, setPropertyTypes] = React.useState<PropertyTypeResponse[]>([]);
-  const [loadingTypes, setLoadingTypes] = React.useState(true);
   const [propertyStatuses, setPropertyStatuses] = React.useState<PropertyStatusResponse[]>([]);
+  const [loadingTypes, setLoadingTypes] = React.useState(true);
   const [loadingStatuses, setLoadingStatuses] = React.useState(true);
-
-  React.useEffect(() => {
-    setLoadingTypes(true);
-    searchPropertyTypesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
-      .then(res => {
-        setPropertyTypes(res.items || []);
-      })
-      .finally(() => setLoadingTypes(false));
-  }, []);
-
-  React.useEffect(() => {
-    setLoadingStatuses(true);
-    searchPropertyStatusesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
-      .then(res => {
-        setPropertyStatuses(res.items || []);
-      })
-      .finally(() => setLoadingStatuses(false));
-  }, []);
+  const [loadingProperty, setLoadingProperty] = React.useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,14 +52,54 @@ const AddProperty = () => {
       bathrooms: "",
       size: "",
       address: "",
-      status: "active",
+      propertyStatusId: "",
       neighborhoodId: "",
       propertyTypeId: "",
       featureList: "",
       markerPosition: { yaw: 0, pitch: 0 },
-      propertyStatusId: "",
     },
   });
+
+  React.useEffect(() => {
+    setLoadingTypes(true);
+    searchPropertyTypesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
+      .then(res => {
+        setPropertyTypes(res.items || []);
+      })
+      .finally(() => setLoadingTypes(false));
+    setLoadingStatuses(true);
+    searchPropertyStatusesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
+      .then(res => {
+        setPropertyStatuses(res.items || []);
+      })
+      .finally(() => setLoadingStatuses(false));
+    setLoadingProperty(true);
+    getPropertyEndpoint(id!, "1")
+      .then(res => {
+        form.reset({
+          title: res.name,
+          description: res.description,
+          price: res.askingPrice?.toString() ?? "",
+          bedrooms: res.rooms?.toString() ?? "",
+          bathrooms: res.bathrooms?.toString() ?? "",
+          size: res.size?.toString() ?? "",
+          address: res.address,
+          propertyStatusId: res.propertyStatusId ?? "",
+          neighborhoodId: res.neighborhoodId ?? "",
+          propertyTypeId: res.propertyTypeId ?? "",
+          featureList: res.featureList ?? "",
+          markerPosition: {
+            yaw: res.markerYaw ?? 0,
+            pitch: res.markerPitch ?? 0,
+          },
+        });
+        setSelectedNeighborhood(
+          agentNeighborhoods.find(n => n.id === res.neighborhoodId) || agentNeighborhoods[0]
+        );
+      })
+      .finally(() => setLoadingProperty(false));
+    // eslint-disable-next-line
+  }, [id]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload = {
@@ -85,28 +108,27 @@ const AddProperty = () => {
       neighborhoodId: values.neighborhoodId,
       agencyId: currentAgent?.agency?.id || "",
       address: values.address,
-      listedDate: new Date().toISOString(),
       askingPrice: Number(values.price),
       size: Number(values.size),
       rooms: Number(values.bedrooms),
       bathrooms: Number(values.bathrooms),
       propertyTypeId: values.propertyTypeId,
-      featureList: values.featureList,
       propertyStatusId: values.propertyStatusId,
+      featureList: values.featureList,
       markerYaw: values.markerPosition.yaw,
       markerPitch: values.markerPosition.pitch,
     };
     try {
-      await createPropertyEndpoint(payload, "1");
+      await updatePropertyEndpoint(id!, payload, "1");
       toast({
-        title: "Property Added",
-        description: `Property "${values.title}" has been added with marker position: Yaw ${values.markerPosition.yaw.toFixed(2)}, Pitch ${values.markerPosition.pitch.toFixed(2)}`,
+        title: "Property Updated",
+        description: `Property "${values.title}" has been updated.`,
       });
       navigate("/properties");
     } catch (err) {
       toast({
         title: "שגיאה",
-        description: "אירעה שגיאה בעת הוספת הנכס.",
+        description: "אירעה שגיאה בעת עדכון הנכס.",
         variant: "destructive",
       });
     }
@@ -116,7 +138,6 @@ const AddProperty = () => {
     const neighborhood = agentNeighborhoods.find(n => n.id === value);
     if (neighborhood) {
       setSelectedNeighborhood(neighborhood);
-      // Reset marker position when neighborhood changes
       form.setValue("markerPosition", { yaw: 0, pitch: 0 });
     }
   };
@@ -124,13 +145,15 @@ const AddProperty = () => {
   const markerPosition = form.watch("markerPosition");
   const hasMarkerPosition = markerPosition.yaw !== 0 || markerPosition.pitch !== 0;
 
+  if (loadingProperty) {
+    return <div>טוען נתוני נכס...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navbar />
-      
       <main className="container px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">הוספת נכס חדש</h1>
-
+        <h1 className="text-3xl font-bold mb-8">עריכת נכס</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -143,7 +166,6 @@ const AddProperty = () => {
                 propertyStatuses={propertyStatuses}
                 loadingStatuses={loadingStatuses}
               />
-              
               <div className="space-y-2 p-4 border rounded-md bg-background">
                 <h3 className="font-medium">מיקום סמן</h3>
                 {hasMarkerPosition ? (
@@ -163,18 +185,12 @@ const AddProperty = () => {
                   </p>
                 )}
               </div>
-
-              <Button 
-                type="submit" 
-                className="w-full"
-                disabled={!hasMarkerPosition}
-              >
-                {hasMarkerPosition ? "הוסף נכס" : "יש להניח סמן קודם"}
+              <Button type="submit" className="w-full" disabled={!hasMarkerPosition}>
+                {hasMarkerPosition ? "עדכן נכס" : "יש להניח סמן קודם"}
               </Button>
             </form>
           </Form>
-
-         <div className="rounded-lg overflow-hidden border border-input bg-background">
+          <div className="rounded-lg overflow-hidden border border-input bg-background">
             {selectedNeighborhood && (
               <MarkerPositioner
                 neighborhood={selectedNeighborhood}
@@ -190,4 +206,4 @@ const AddProperty = () => {
   );
 };
 
-export default AddProperty;
+export default EditProperty;

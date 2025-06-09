@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { useProperties } from "@/hooks/useProperties";
 import { toast } from "@/hooks/use-toast";
@@ -8,7 +8,8 @@ import SearchAndFilter from "@/components/properties/SearchAndFilter";
 import PropertiesTable from "@/components/properties/PropertiesTable";
 import AgentFooter from "@/components/properties/AgentFooter";
 import { Neighborhood, Property } from "@/lib/data";
-import { NeighborhoodResponse, PropertyResponse } from "@/api/homemapapi";
+import { NeighborhoodResponse, PropertyResponse, searchPropertyTypesEndpoint, searchPropertyStatusesEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
+import { useNavigate } from "react-router-dom";
 
 // Map API model to UI model
 function mapNeighborhood(n: NeighborhoodResponse): Neighborhood {
@@ -26,7 +27,7 @@ function mapProperty(p: PropertyResponse): Property {
     id: p.id || "",
     title: p.name || "",
     address: p.address || "",
-    neighborhood: p.neighborhoodName || "",
+    neighborhood: p.neighborhoodId || "",
     price: p.askingPrice || 0,
     size: p.size || 0,
     bedrooms: p.rooms || 0,
@@ -40,6 +41,8 @@ function mapProperty(p: PropertyResponse): Property {
     status: p.soldDate ? "sold" : "active",
     soldDate: p.soldDate || undefined,
     soldPrice: p.soldPrice || undefined,
+    propertyTypeId: p.propertyTypeId || undefined,
+    propertyStatusId: p.propertyStatusId || undefined,
   };
 }
 
@@ -49,6 +52,11 @@ const ManageListings = () => {
   const [sortBy, setSortBy] = useState<string>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>("");
+  const [propertyTypes, setPropertyTypes] = useState<PropertyTypeResponse[]>([]);
+  const [propertyStatuses, setPropertyStatuses] = useState<PropertyStatusResponse[]>([]);
+  const [loadingTypes, setLoadingTypes] = useState(true);
+  const [loadingStatuses, setLoadingStatuses] = useState(true);
+  const navigate = useNavigate();
 
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -63,11 +71,11 @@ const ManageListings = () => {
     }
   };
 
+  const handleAddProperty = () => {
+    navigate("/add-property");
+  };
   const handleEditProperty = (id: string) => {
-    toast({
-      title: "עריכת נכס",
-      description: `פתיחת הנכס ${id} לעריכה`,
-    });
+    navigate(`/edit-property/${id}`);
   };
 
   const handleDeleteProperty = (id: string) => {
@@ -78,12 +86,23 @@ const ManageListings = () => {
     });
   };
 
-  const handleAddProperty = () => {
-    toast({
-      title: "הוספת נכס חדש",
-      description: "פתיחת טופס הוספת נכס חדש",
-    });
-  };
+  useEffect(() => {
+    setLoadingTypes(true);
+    searchPropertyTypesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
+      .then(res => {
+        setPropertyTypes(res.items || []);
+      })
+      .finally(() => setLoadingTypes(false));
+  }, []);
+
+  useEffect(() => {
+    setLoadingStatuses(true);
+    searchPropertyStatusesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
+      .then(res => {
+        setPropertyStatuses(res.items || []);
+      })
+      .finally(() => setLoadingStatuses(false));
+  }, []);
 
   // Map API data to UI models
   const neighborhoods: Neighborhood[] = agentNeighborhoods.map(mapNeighborhood);
@@ -135,6 +154,8 @@ const ManageListings = () => {
           <PropertiesTable
             properties={filteredProperties}
             neighborhoods={neighborhoods}
+            propertyTypes={propertyTypes}
+            propertyStatuses={propertyStatuses}
             sortBy={sortBy}
             sortDirection={sortDirection}
             handleSort={handleSort}
@@ -143,7 +164,7 @@ const ManageListings = () => {
           />
         </div>
       </main>
-      <AgentFooter agent={currentAgent} />
+      <AgentFooter agent={currentAgent && currentAgent.id ? currentAgent : undefined} />
     </div>
   );
 };

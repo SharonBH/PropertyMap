@@ -262,11 +262,25 @@ export interface CreatePropertyCommand {
   listedDate?: string;
   /** @nullable */
   featureList?: string | null;
+  propertyStatusId?: string;
+  markerYaw?: number;
+  markerPitch?: number;
 }
 
 export interface CreatePropertyResponse {
   /** @nullable */
   id?: string | null;
+}
+
+export interface CreatePropertyStatusCommand {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  description?: string | null;
+}
+
+export interface CreatePropertyStatusResponse {
+  id?: string;
 }
 
 export interface CreatePropertyTypeCommand {
@@ -422,10 +436,8 @@ export interface PropertyResponse {
   size?: number;
   rooms?: number;
   bathrooms?: number;
-  /** @nullable */
-  neighborhoodName?: string | null;
-  /** @nullable */
-  propertyTypeName?: string | null;
+  neighborhoodId?: string;
+  propertyTypeId?: string;
   listedDate?: string;
   /** @nullable */
   soldDate?: string | null;
@@ -433,11 +445,33 @@ export interface PropertyResponse {
   soldPrice?: number | null;
   /** @nullable */
   featureList?: string | null;
+  propertyStatusId?: string;
+  markerYaw?: number;
+  markerPitch?: number;
 }
 
 export interface PropertyResponsePagedList {
   /** @nullable */
   items?: PropertyResponse[] | null;
+  pageNumber?: number;
+  pageSize?: number;
+  totalCount?: number;
+  readonly totalPages?: number;
+  readonly hasPrevious?: boolean;
+  readonly hasNext?: boolean;
+}
+
+export interface PropertyStatusResponse {
+  id?: string;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  description?: string | null;
+}
+
+export interface PropertyStatusResponsePagedList {
+  /** @nullable */
+  items?: PropertyStatusResponse[] | null;
   pageNumber?: number;
   pageSize?: number;
   totalCount?: number;
@@ -651,6 +685,27 @@ export interface SearchPropertiesCommand {
   orderBy?: string[] | null;
   /** @nullable */
   keyword?: string | null;
+  /** @nullable */
+  propertyStatusId?: string | null;
+  /** @nullable */
+  markerYaw?: number | null;
+  /** @nullable */
+  markerPitch?: number | null;
+}
+
+export interface SearchPropertyStatusCommand {
+  advancedSearch?: Search;
+  /** @nullable */
+  keyword?: string | null;
+  advancedFilter?: Filter;
+  pageNumber?: number;
+  pageSize?: number;
+  /** @nullable */
+  orderBy?: string[] | null;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  description?: string | null;
 }
 
 export interface SearchPropertyTypesCommand {
@@ -861,11 +916,29 @@ export interface UpdatePropertyCommand {
   soldPrice?: number | null;
   /** @nullable */
   featureList?: string | null;
+  /** @nullable */
+  propertyStatusId?: string | null;
+  /** @nullable */
+  markerYaw?: number | null;
+  /** @nullable */
+  markerPitch?: number | null;
 }
 
 export interface UpdatePropertyResponse {
   /** @nullable */
   id?: string | null;
+}
+
+export interface UpdatePropertyStatusCommand {
+  id?: string;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  description?: string | null;
+}
+
+export interface UpdatePropertyStatusResponse {
+  id?: string;
 }
 
 export interface UpdatePropertyTypeCommand {
@@ -3139,6 +3212,367 @@ export const useSearchPropertiesEndpoint = <TError = ErrorType<unknown>,
       > => {
 
       const mutationOptions = getSearchPropertiesEndpointMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Creates a PropertyStatus
+ * @summary Creates a PropertyStatus
+ */
+export const createPropertyStatusEndpoint = (
+    createPropertyStatusCommand: BodyType<CreatePropertyStatusCommand>,
+    version: string = '1',
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<CreatePropertyStatusResponse>(
+      {url: `/api/v${version}/catalog/propertystatuses/propertystatuses`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createPropertyStatusCommand, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreatePropertyStatusEndpointMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPropertyStatusEndpoint>>, TError,{data: BodyType<CreatePropertyStatusCommand>;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPropertyStatusEndpoint>>, TError,{data: BodyType<CreatePropertyStatusCommand>;version?: string}, TContext> => {
+
+const mutationKey = ['createPropertyStatusEndpoint'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPropertyStatusEndpoint>>, {data: BodyType<CreatePropertyStatusCommand>;version?: string}> = (props) => {
+          const {data,version} = props ?? {};
+
+          return  createPropertyStatusEndpoint(data,version,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePropertyStatusEndpointMutationResult = NonNullable<Awaited<ReturnType<typeof createPropertyStatusEndpoint>>>
+    export type CreatePropertyStatusEndpointMutationBody = BodyType<CreatePropertyStatusCommand>
+    export type CreatePropertyStatusEndpointMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Creates a PropertyStatus
+ */
+export const useCreatePropertyStatusEndpoint = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPropertyStatusEndpoint>>, TError,{data: BodyType<CreatePropertyStatusCommand>;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createPropertyStatusEndpoint>>,
+        TError,
+        {data: BodyType<CreatePropertyStatusCommand>;version?: string},
+        TContext
+      > => {
+
+      const mutationOptions = getCreatePropertyStatusEndpointMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Gets a PropertyStatus by ID
+ * @summary Gets a PropertyStatus by ID
+ */
+export const getPropertyStatusEndpoint = (
+    id: string,
+    version: string = '1',
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PropertyStatusResponse>(
+      {url: `/api/v${version}/catalog/propertystatuses/propertystatuses/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetPropertyStatusEndpointQueryKey = (id: string,
+    version: string = '1',) => {
+    return [`/api/v${version}/catalog/propertystatuses/propertystatuses/${id}`] as const;
+    }
+
+    
+export const getGetPropertyStatusEndpointQueryOptions = <TData = Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError = ErrorType<unknown>>(id: string,
+    version: string = '1', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPropertyStatusEndpointQueryKey(id,version);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>> = ({ signal }) => getPropertyStatusEndpoint(id,version, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(version && id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError, TData> & { queryKey: DataTag<QueryKey, TData> }
+}
+
+export type GetPropertyStatusEndpointQueryResult = NonNullable<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>>
+export type GetPropertyStatusEndpointQueryError = ErrorType<unknown>
+
+
+export function useGetPropertyStatusEndpoint<TData = Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError = ErrorType<unknown>>(
+ id: string,
+    version: undefined |  string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPropertyStatusEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getPropertyStatusEndpoint>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> }
+export function useGetPropertyStatusEndpoint<TData = Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError = ErrorType<unknown>>(
+ id: string,
+    version?: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPropertyStatusEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getPropertyStatusEndpoint>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> }
+export function useGetPropertyStatusEndpoint<TData = Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError = ErrorType<unknown>>(
+ id: string,
+    version?: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> }
+/**
+ * @summary Gets a PropertyStatus by ID
+ */
+
+export function useGetPropertyStatusEndpoint<TData = Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError = ErrorType<unknown>>(
+ id: string,
+    version: string = '1', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPropertyStatusEndpoint>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+
+  const queryOptions = getGetPropertyStatusEndpointQueryOptions(id,version,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Updates a PropertyStatus
+ * @summary Updates a PropertyStatus
+ */
+export const updatePropertyStatusEndpoint = (
+    id: string,
+    updatePropertyStatusCommand: BodyType<UpdatePropertyStatusCommand>,
+    version: string = '1',
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<UpdatePropertyStatusResponse>(
+      {url: `/api/v${version}/catalog/propertystatuses/propertystatuses/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePropertyStatusCommand
+    },
+      options);
+    }
+  
+
+
+export const getUpdatePropertyStatusEndpointMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePropertyStatusEndpoint>>, TError,{id: string;data: BodyType<UpdatePropertyStatusCommand>;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof updatePropertyStatusEndpoint>>, TError,{id: string;data: BodyType<UpdatePropertyStatusCommand>;version?: string}, TContext> => {
+
+const mutationKey = ['updatePropertyStatusEndpoint'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updatePropertyStatusEndpoint>>, {id: string;data: BodyType<UpdatePropertyStatusCommand>;version?: string}> = (props) => {
+          const {id,data,version} = props ?? {};
+
+          return  updatePropertyStatusEndpoint(id,data,version,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdatePropertyStatusEndpointMutationResult = NonNullable<Awaited<ReturnType<typeof updatePropertyStatusEndpoint>>>
+    export type UpdatePropertyStatusEndpointMutationBody = BodyType<UpdatePropertyStatusCommand>
+    export type UpdatePropertyStatusEndpointMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Updates a PropertyStatus
+ */
+export const useUpdatePropertyStatusEndpoint = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePropertyStatusEndpoint>>, TError,{id: string;data: BodyType<UpdatePropertyStatusCommand>;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updatePropertyStatusEndpoint>>,
+        TError,
+        {id: string;data: BodyType<UpdatePropertyStatusCommand>;version?: string},
+        TContext
+      > => {
+
+      const mutationOptions = getUpdatePropertyStatusEndpointMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Deletes a PropertyStatus by ID
+ * @summary Deletes a PropertyStatus by ID
+ */
+export const deletePropertyStatusEndpoint = (
+    id: string,
+    version: string = '1',
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<void>(
+      {url: `/api/v${version}/catalog/propertystatuses/propertystatuses/${id}`, method: 'DELETE'
+    },
+      options);
+    }
+  
+
+
+export const getDeletePropertyStatusEndpointMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePropertyStatusEndpoint>>, TError,{id: string;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof deletePropertyStatusEndpoint>>, TError,{id: string;version?: string}, TContext> => {
+
+const mutationKey = ['deletePropertyStatusEndpoint'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deletePropertyStatusEndpoint>>, {id: string;version?: string}> = (props) => {
+          const {id,version} = props ?? {};
+
+          return  deletePropertyStatusEndpoint(id,version,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeletePropertyStatusEndpointMutationResult = NonNullable<Awaited<ReturnType<typeof deletePropertyStatusEndpoint>>>
+    
+    export type DeletePropertyStatusEndpointMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Deletes a PropertyStatus by ID
+ */
+export const useDeletePropertyStatusEndpoint = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePropertyStatusEndpoint>>, TError,{id: string;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deletePropertyStatusEndpoint>>,
+        TError,
+        {id: string;version?: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeletePropertyStatusEndpointMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Searches PropertyStatuses with pagination and filtering
+ * @summary Searches PropertyStatuses with pagination and filtering
+ */
+export const searchPropertyStatusesEndpoint = (
+    searchPropertyStatusCommand: BodyType<SearchPropertyStatusCommand>,
+    version: string = '1',
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PropertyStatusResponsePagedList>(
+      {url: `/api/v${version}/catalog/propertystatuses/propertystatuses/search`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: searchPropertyStatusCommand, signal
+    },
+      options);
+    }
+  
+
+
+export const getSearchPropertyStatusesEndpointMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof searchPropertyStatusesEndpoint>>, TError,{data: BodyType<SearchPropertyStatusCommand>;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof searchPropertyStatusesEndpoint>>, TError,{data: BodyType<SearchPropertyStatusCommand>;version?: string}, TContext> => {
+
+const mutationKey = ['searchPropertyStatusesEndpoint'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof searchPropertyStatusesEndpoint>>, {data: BodyType<SearchPropertyStatusCommand>;version?: string}> = (props) => {
+          const {data,version} = props ?? {};
+
+          return  searchPropertyStatusesEndpoint(data,version,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SearchPropertyStatusesEndpointMutationResult = NonNullable<Awaited<ReturnType<typeof searchPropertyStatusesEndpoint>>>
+    export type SearchPropertyStatusesEndpointMutationBody = BodyType<SearchPropertyStatusCommand>
+    export type SearchPropertyStatusesEndpointMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Searches PropertyStatuses with pagination and filtering
+ */
+export const useSearchPropertyStatusesEndpoint = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof searchPropertyStatusesEndpoint>>, TError,{data: BodyType<SearchPropertyStatusCommand>;version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof searchPropertyStatusesEndpoint>>,
+        TError,
+        {data: BodyType<SearchPropertyStatusCommand>;version?: string},
+        TContext
+      > => {
+
+      const mutationOptions = getSearchPropertyStatusesEndpointMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }

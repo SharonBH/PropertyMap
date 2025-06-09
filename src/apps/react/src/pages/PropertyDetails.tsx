@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { getPropertyById, getAgentById } = useProperties();
+  const { getPropertyById, currentAgent } = useProperties();
   const [property, setProperty] = useState<Property | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);

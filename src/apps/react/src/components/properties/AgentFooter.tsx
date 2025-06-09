@@ -1,12 +1,12 @@
-
 import React from "react";
 import { Agent } from "@/lib/data";
 
 interface AgentFooterProps {
-  agent: Agent;
+  agent?: Agent;
 }
 
 const AgentFooter: React.FC<AgentFooterProps> = ({ agent }) => {
+  if (!agent || !agent.name) return null;
   return (
     <footer className="bg-estate-blue text-white py-8 mt-auto">
       <div className="container px-4">

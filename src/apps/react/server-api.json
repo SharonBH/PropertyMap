@@ -1306,6 +1306,222 @@
         }
       }
     },
+    "/api/v{version}/catalog/propertystatuses/propertystatuses": {
+      "post": {
+        "tags": [
+          "propertystatuses"
+        ],
+        "summary": "Creates a PropertyStatus",
+        "description": "Creates a PropertyStatus",
+        "operationId": "CreatePropertyStatusEndpoint",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "The requested API version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePropertyStatusCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePropertyStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v{version}/catalog/propertystatuses/propertystatuses/{id}": {
+      "get": {
+        "tags": [
+          "propertystatuses"
+        ],
+        "summary": "Gets a PropertyStatus by ID",
+        "description": "Gets a PropertyStatus by ID",
+        "operationId": "GetPropertyStatusEndpoint",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "The requested API version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "propertystatuses"
+        ],
+        "summary": "Updates a PropertyStatus",
+        "description": "Updates a PropertyStatus",
+        "operationId": "UpdatePropertyStatusEndpoint",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "The requested API version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePropertyStatusCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePropertyStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "propertystatuses"
+        ],
+        "summary": "Deletes a PropertyStatus by ID",
+        "description": "Deletes a PropertyStatus by ID",
+        "operationId": "DeletePropertyStatusEndpoint",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "The requested API version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v{version}/catalog/propertystatuses/propertystatuses/search": {
+      "post": {
+        "tags": [
+          "propertystatuses"
+        ],
+        "summary": "Searches PropertyStatuses with pagination and filtering",
+        "description": "Searches PropertyStatuses with pagination and filtering",
+        "operationId": "SearchPropertyStatusesEndpoint",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "The requested API version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchPropertyStatusCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyStatusResponsePagedList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v{version}/catalog/propertytypes": {
       "post": {
         "tags": [
@@ -3476,6 +3692,18 @@
           "featureList": {
             "type": "string",
             "nullable": true
+          },
+          "propertyStatusId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "markerYaw": {
+            "type": "number",
+            "format": "double"
+          },
+          "markerPitch": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -3487,6 +3715,30 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePropertyStatusCommand": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePropertyStatusResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -3851,13 +4103,13 @@
             "type": "integer",
             "format": "int32"
           },
-          "neighborhoodName": {
+          "neighborhoodId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
-          "propertyTypeName": {
+          "propertyTypeId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
           "listedDate": {
             "type": "string",
@@ -3876,6 +4128,18 @@
           "featureList": {
             "type": "string",
             "nullable": true
+          },
+          "propertyStatusId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "markerYaw": {
+            "type": "number",
+            "format": "double"
+          },
+          "markerPitch": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -3887,6 +4151,62 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PropertyResponse"
+            },
+            "nullable": true
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "hasPrevious": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "hasNext": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyStatusResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyStatusResponsePagedList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyStatusResponse"
             },
             "nullable": true
           },
@@ -4450,6 +4770,60 @@
           "keyword": {
             "type": "string",
             "nullable": true
+          },
+          "propertyStatusId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "markerYaw": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "markerPitch": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchPropertyStatusCommand": {
+        "type": "object",
+        "properties": {
+          "advancedSearch": {
+            "$ref": "#/components/schemas/Search"
+          },
+          "keyword": {
+            "type": "string",
+            "nullable": true
+          },
+          "advancedFilter": {
+            "$ref": "#/components/schemas/Filter"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4941,6 +5315,21 @@
           "featureList": {
             "type": "string",
             "nullable": true
+          },
+          "propertyStatusId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "markerYaw": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "markerPitch": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4952,6 +5341,34 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePropertyStatusCommand": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePropertyStatusResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "additionalProperties": false
