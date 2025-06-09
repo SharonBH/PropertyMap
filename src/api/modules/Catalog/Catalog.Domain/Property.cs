@@ -24,10 +24,14 @@ public class Property : AuditableEntity, IAggregateRoot
     public DateTime? SoldDate { get; private set; }
     public decimal? SoldPrice { get; private set; }
     public string FeatureList { get; private set; } = string.Empty;
+    public Guid PropertyStatusId { get; private set; }
+    public virtual PropertyStatus PropertyStatus { get; private set; } = default!;
+    public decimal MarkerYaw { get; private set; }
+    public decimal MarkerPitch { get; private set; }
 
     private Property() { }
 
-    private Property(Guid id, string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, Guid agencyId, DateTime listedDate, string featureList)
+    private Property(Guid id, string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, Guid propertyStatusId, Guid agencyId, DateTime listedDate, string featureList, decimal markerYaw, decimal markerPitch)
     {
         Id = id;
         Name = name;
@@ -39,19 +43,22 @@ public class Property : AuditableEntity, IAggregateRoot
         Rooms = rooms;
         Bathrooms = bathrooms;
         PropertyTypeId = propertyTypeId;
+        PropertyStatusId = propertyStatusId;
         AgencyId = agencyId;
         ListedDate = listedDate;
         FeatureList = featureList;
+        MarkerYaw = markerYaw;
+        MarkerPitch = markerPitch;
 
         QueueDomainEvent(new PropertyCreated { Property = this });
     }
 
-    public static Property Create(string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, Guid agencyId, DateTime listedDate, string featureList)
+    public static Property Create(string name, string description, Guid neighborhoodId, string address, decimal askingPrice, double size, int rooms, int bathrooms, Guid propertyTypeId, Guid propertyStatusId, Guid agencyId, DateTime listedDate, string featureList, decimal markerYaw, decimal markerPitch)
     {
-        return new Property(Guid.NewGuid(), name, description, neighborhoodId, address, askingPrice, size, rooms, bathrooms, propertyTypeId, agencyId, listedDate, featureList);
+        return new Property(Guid.NewGuid(), name, description, neighborhoodId, address, askingPrice, size, rooms, bathrooms, propertyTypeId, propertyStatusId, agencyId, listedDate, featureList, markerYaw, markerPitch);
     }
 
-    public Property Update(string? name, string? description, Guid? neighborhoodId, string? address, decimal? askingPrice, double? size, int? rooms, int? bathrooms, Guid? propertyTypeId, Guid? agencyId, DateTime? listedDate, DateTime? soldDate, decimal? soldPrice, string? featureList)
+    public Property Update(string? name, string? description, Guid? neighborhoodId, string? address, decimal? askingPrice, double? size, int? rooms, int? bathrooms, Guid? propertyTypeId, Guid? propertyStatusId, Guid? agencyId, DateTime? listedDate, DateTime? soldDate, decimal? soldPrice, string? featureList, decimal? markerYaw, decimal? markerPitch)
     {
         bool isUpdated = false;
 
@@ -136,6 +143,21 @@ public class Property : AuditableEntity, IAggregateRoot
         if (!string.IsNullOrWhiteSpace(featureList) && !string.Equals(FeatureList, featureList, StringComparison.OrdinalIgnoreCase))
         {
             FeatureList = featureList;
+            isUpdated = true;
+        }
+        if (propertyStatusId.HasValue && PropertyStatusId != propertyStatusId.Value)
+        {
+            PropertyStatusId = propertyStatusId.Value;
+            isUpdated = true;
+        }
+        if (markerYaw.HasValue && MarkerYaw != markerYaw.Value)
+        {
+            MarkerYaw = markerYaw.Value;
+            isUpdated = true;
+        }
+        if (markerPitch.HasValue && MarkerPitch != markerPitch.Value)
+        {
+            MarkerPitch = markerPitch.Value;
             isUpdated = true;
         }
 

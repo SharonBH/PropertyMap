@@ -19,8 +19,7 @@ import {
 } from "@/components/ui/pagination";
 
 const PropertiesPage = () => {
-  const { 
-    properties, 
+  const {  
     agentProperties, 
     soldProperties, 
     currentAgent,
@@ -64,7 +63,7 @@ const PropertiesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navbar />
       
       <main className="container px-4 py-8">

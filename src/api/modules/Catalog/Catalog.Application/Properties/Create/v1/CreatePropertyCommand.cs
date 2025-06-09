@@ -14,4 +14,7 @@ public sealed record CreatePropertyCommand(
     Guid PropertyTypeId,
     Guid AgencyId,
     DateTime ListedDate,
-    string FeatureList) : IRequest<CreatePropertyResponse>;
+    string FeatureList,
+    Guid PropertyStatusId,
+    decimal MarkerYaw,
+    decimal MarkerPitch) : IRequest<CreatePropertyResponse>;

@@ -80,6 +80,13 @@ public static class CatalogModule
             reviewGroup.MapReviewUpdateEndpoint();
             reviewGroup.MapReviewDeleteEndpoint();
 
+            var propertyStatusGroup = app.MapGroup("propertystatuses").WithTags("propertystatuses");
+            propertyStatusGroup.MapPropertyStatusCreationEndpoint();
+            propertyStatusGroup.MapGetPropertyStatusEndpoint();
+            propertyStatusGroup.MapSearchPropertyStatusesEndpoint();
+            propertyStatusGroup.MapPropertyStatusUpdateEndpoint();
+            propertyStatusGroup.MapPropertyStatusDeleteEndpoint();
+
         
         }
     }
@@ -106,6 +113,8 @@ public static class CatalogModule
         builder.Services.AddKeyedScoped<IReadRepository<Property>, CatalogRepository<Property>>("catalog:properties");
         builder.Services.AddKeyedScoped<IRepository<Review>, CatalogRepository<Review>>("catalog:reviews");
         builder.Services.AddKeyedScoped<IReadRepository<Review>, CatalogRepository<Review>>("catalog:reviews");
+        builder.Services.AddKeyedScoped<IRepository<PropertyStatus>, CatalogRepository<PropertyStatus>>("catalog:propertystatuses");
+        builder.Services.AddKeyedScoped<IReadRepository<PropertyStatus>, CatalogRepository<PropertyStatus>>("catalog:propertystatuses");
         return builder;
     }
     public static WebApplication UseCatalogModule(this WebApplication app)

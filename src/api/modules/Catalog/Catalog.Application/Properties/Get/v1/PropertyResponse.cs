@@ -14,4 +14,7 @@ public sealed record PropertyResponse(
     DateTime ListedDate,
     DateTime? SoldDate,
     decimal? SoldPrice,
-    string FeatureList);
+    string FeatureList,
+    string PropertyStatusName,
+    decimal MarkerYaw,
+    decimal MarkerPitch);

@@ -24,7 +24,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     >
       <div className="relative">
         <img
-          src={property.images[0]}
+          src={property.images && property.images.length > 0 ? property.images[0] : "/placeholder-image.jpg"}
           alt={property.title}
           className="w-full h-48 object-cover"
           loading="lazy"

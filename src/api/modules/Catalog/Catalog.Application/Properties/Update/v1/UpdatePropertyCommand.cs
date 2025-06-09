@@ -17,4 +17,7 @@ public sealed record UpdatePropertyCommand(
     DateTime? ListedDate,
     DateTime? SoldDate,
     decimal? SoldPrice,
-    string? FeatureList) : IRequest<UpdatePropertyResponse>;
+    string? FeatureList,
+    Guid? PropertyStatusId,
+    decimal? MarkerYaw,
+    decimal? MarkerPitch) : IRequest<UpdatePropertyResponse>;
