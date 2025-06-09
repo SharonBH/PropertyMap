@@ -1,7 +1,8 @@
+import { NeighborhoodResponse } from "@/api/homemapapi";
 import React from "react";
 
 interface NeighborhoodOverlayProps {
-  neighborhoods: Array<{ id: string; name: string; iconUrl?: string }>;
+  neighborhoods: NeighborhoodResponse[];
   selectedId?: string;
   onSelect: (id: string) => void;
 }
@@ -15,8 +16,8 @@ const NeighborhoodOverlay: React.FC<NeighborhoodOverlayProps> = ({ neighborhoods
           onClick={() => onSelect(n.id)}
           className={`flex flex-col items-center focus:outline-none ${selectedId === n.id ? 'text-primary font-bold' : 'text-gray-700'}`}
         >
-          {n.iconUrl ? (
-            <img src={n.iconUrl} alt={n.name} className="w-8 h-8 mb-1 rounded-full border-2 border-gray-300" />
+          {n.iconURL ? (
+            <img src={n.iconURL} alt={n.name} className="w-8 h-8 mb-1 rounded-full border-2 border-gray-300" />
           ) : (
             <span className="w-8 h-8 mb-1 flex items-center justify-center rounded-full bg-gray-200 text-lg">🏙️</span>
           )}

@@ -1,12 +1,12 @@
 import React from "react";
-import { Property, Neighborhood, formatPrice } from "@/lib/data";
+import { formatPrice } from "@/lib/data";
 import { Edit, Trash, Map, ChevronUp, ChevronDown } from "lucide-react";
 import { Building } from "lucide-react";
-import { PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
+import { PropertyTypeResponse, PropertyStatusResponse, PropertyResponse, NeighborhoodResponse } from "@/api/homemapapi";
 
 interface PropertiesTableProps {
-  properties: Property[];
-  neighborhoods: Neighborhood[];
+  properties: PropertyResponse[];
+  neighborhoods: NeighborhoodResponse[];
   propertyTypes: PropertyTypeResponse[];
   propertyStatuses: PropertyStatusResponse[];
   sortBy: string;
@@ -93,7 +93,7 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
           {properties.length > 0 ? (
             properties.map((property) => {
               const neighborhood = neighborhoods.find(
-                (n) => n.id === property.neighborhood
+                (n) => n.id === property.neighborhoodId
               );
               const propertyType = propertyTypes.find(
                 (t) => t.id === property.propertyTypeId
@@ -111,11 +111,11 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
                     <div className="flex items-center">
                       <div 
                         className="h-10 w-10 rounded-md bg-cover bg-center ml-3"
-                        style={{ backgroundImage: `url(${property.images[0]})` }}
+                        style={{ backgroundImage: `url(${property.images && property.images.length > 0 ? property.images[0] : '/placeholder-image.jpg'})` }}
                       />
                       <div>
                         <div className="font-medium text-estate-dark-gray">
-                          {property.title}
+                          {property.name}
                         </div>
                         <div className="text-sm text-gray-500">
                           {property.address}
@@ -128,9 +128,9 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
                       {neighborhood?.name}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-medium">{formatPrice(property.price)}</td>
+                  <td className="px-6 py-4 font-medium">{formatPrice(property.askingPrice)}</td>
                   <td className="px-6 py-4 text-gray-600">
-                    {new Date(property.createdAt).toLocaleDateString("he-IL")}
+                    {new Date(property.listedDate).toLocaleDateString("he-IL")}
                   </td>
                   <td className="px-6 py-4">
                     {propertyType?.name || "-"}

@@ -69,17 +69,33 @@ export function useProperties() {
     fetchReviews();
   }, [currentAgent]);
 
-  // Update filtered properties when selected neighborhood or allProperties changes
+  // Fetch properties by neighborhoodId
+  const fetchPropertiesByNeighborhoodId = async (neighborhoodId: string) => {
+    if (!neighborhoodId) {
+      setFilteredProperties([]);
+      return;
+    }
+    const res = await searchPropertiesEndpoint({
+      advancedFilter: {
+        field: "neighborhoodId",
+        operator: "eq",
+        value: neighborhoodId,
+      },
+      pageNumber: 1,
+      pageSize: 100,
+    });
+    setFilteredProperties(res.items || []);
+  };
+
+  // Update filtered properties when selected neighborhood changes (fetch from API)
   useEffect(() => {
     if (selectedNeighborhood) {
-      const props = allProperties.filter(
-        (prop: PropertyResponse) => prop.neighborhoodId === selectedNeighborhood.id
-      );
-      setFilteredProperties(props);
+      fetchPropertiesByNeighborhoodId(selectedNeighborhood.id);
     } else {
       setFilteredProperties([]);
     }
-  }, [selectedNeighborhood, allProperties]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNeighborhood]);
 
   // Update sold properties when allProperties changes
   useEffect(() => {

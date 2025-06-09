@@ -42,7 +42,7 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/neighborhood/:id" element={<NeighborhoodMap />} />
+              <Route path="/neighborhood" element={<NeighborhoodMap />} />
               <Route 
                 path="/manage" 
                 element={

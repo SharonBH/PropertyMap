@@ -4,12 +4,14 @@ import { Home, Building, Phone, Info, Settings, Map, LogIn, User } from "lucide-
 import { cn } from "@/lib/utils";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/useAuth";
+import { useProperties } from "@/hooks/useProperties";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, currentAgent, logout } = useAuth();
+  const { agentNeighborhoods } = useProperties();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -48,10 +50,10 @@ const Navbar = () => {
           />
           
           <NavItem 
-            to="/neighborhood/n1" 
+            to="/neighborhood" 
             icon={<Map className="h-4 w-4" />} 
             label="שכונות"
-            isActive={isActivePrefix("/neighborhood/")}
+            isActive={isActivePrefix("/neighborhood")}
           />
           
           <NavItem 

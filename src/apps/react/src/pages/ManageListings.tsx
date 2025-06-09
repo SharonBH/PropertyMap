@@ -7,44 +7,8 @@ import PageHeader from "@/components/properties/PageHeader";
 import SearchAndFilter from "@/components/properties/SearchAndFilter";
 import PropertiesTable from "@/components/properties/PropertiesTable";
 import AgentFooter from "@/components/properties/AgentFooter";
-import { Neighborhood, Property } from "@/lib/data";
 import { NeighborhoodResponse, PropertyResponse, searchPropertyTypesEndpoint, searchPropertyStatusesEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
 import { useNavigate } from "react-router-dom";
-
-// Map API model to UI model
-function mapNeighborhood(n: NeighborhoodResponse): Neighborhood {
-  return {
-    id: n.id || "",
-    name: n.name || "",
-    description: n.description || "",
-    coordinates: { lat: 0, lng: 0 }, // No coordinates in API, fallback
-    zoom: 15, // Default zoom
-  };
-}
-
-function mapProperty(p: PropertyResponse): Property {
-  return {
-    id: p.id || "",
-    title: p.name || "",
-    address: p.address || "",
-    neighborhood: p.neighborhoodId || "",
-    price: p.askingPrice || 0,
-    size: p.size || 0,
-    bedrooms: p.rooms || 0,
-    bathrooms: p.bathrooms || 0,
-    description: p.description || "",
-    images: [], // No images in API, fallback
-    features: p.featureList ? p.featureList.split(",") : [],
-    coordinates: { lat: 0, lng: 0 }, // No coordinates in API, fallback
-    agentId: "", // Not in API response
-    createdAt: p.listedDate || "",
-    status: p.soldDate ? "sold" : "active",
-    soldDate: p.soldDate || undefined,
-    soldPrice: p.soldPrice || undefined,
-    propertyTypeId: p.propertyTypeId || undefined,
-    propertyStatusId: p.propertyStatusId || undefined,
-  };
-}
 
 const ManageListings = () => {
   const { agentNeighborhoods, currentAgent, agentProperties } = useProperties();
@@ -105,32 +69,32 @@ const ManageListings = () => {
   }, []);
 
   // Map API data to UI models
-  const neighborhoods: Neighborhood[] = agentNeighborhoods.map(mapNeighborhood);
-  const properties: Property[] = agentProperties.map(mapProperty);
+  //const neighborhoods: Neighborhood[] = agentNeighborhoods.map(mapNeighborhood);
+  //const properties: Property[] = agentProperties.map(mapProperty);
 
   // Filter agent properties by search term and neighborhood
-  const filteredProperties = properties
+  const filteredProperties = agentProperties
     .filter((property) => {
       const matchesSearch =
-        property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.address.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesNeighborhood =
-        selectedNeighborhood === "" || property.neighborhood === neighborhoods.find(n => n.id === selectedNeighborhood)?.name;
+        selectedNeighborhood === "" || property.neighborhoodId === agentNeighborhoods.find(n => n.id === selectedNeighborhood)?.name;
       return matchesSearch && matchesNeighborhood;
     })
     .sort((a, b) => {
       if (sortBy === "price") {
         return sortDirection === "asc"
-          ? a.price - b.price
-          : b.price - a.price;
+          ? a.askingPrice - b.askingPrice
+          : b.askingPrice - a.askingPrice;
       } else if (sortBy === "date") {
         return sortDirection === "asc"
-          ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          ? new Date(a.listedDate).getTime() - new Date(b.listedDate).getTime()
+          : new Date(b.listedDate).getTime() - new Date(a.listedDate).getTime();
       } else if (sortBy === "title") {
         return sortDirection === "asc"
-          ? a.title.localeCompare(b.title)
-          : b.title.localeCompare(a.title);
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
       }
       return 0;
     });
@@ -149,11 +113,11 @@ const ManageListings = () => {
             setSearchTerm={setSearchTerm}
             selectedNeighborhood={selectedNeighborhood}
             setSelectedNeighborhood={setSelectedNeighborhood}
-            availableNeighborhoods={neighborhoods}
+            availableNeighborhoods={agentNeighborhoods}
           />
           <PropertiesTable
             properties={filteredProperties}
-            neighborhoods={neighborhoods}
+            neighborhoods={agentNeighborhoods}
             propertyTypes={propertyTypes}
             propertyStatuses={propertyStatuses}
             sortBy={sortBy}
