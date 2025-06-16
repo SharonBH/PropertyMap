@@ -43,10 +43,10 @@ const Navbar = () => {
           />
           
           <NavItem 
-            to="/properties" 
+            to="/manage" 
             icon={<Building className="h-4 w-4" />} 
             label="נכסים"
-            isActive={isActive("/properties")}
+            isActive={isActive("/manage")}
           />
           
           <NavItem 

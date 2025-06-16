@@ -18,8 +18,6 @@ const ManageListings = () => {
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>("");
   const [propertyTypes, setPropertyTypes] = useState<PropertyTypeResponse[]>([]);
   const [propertyStatuses, setPropertyStatuses] = useState<PropertyStatusResponse[]>([]);
-  const [loadingTypes, setLoadingTypes] = useState(true);
-  const [loadingStatuses, setLoadingStatuses] = useState(true);
   const navigate = useNavigate();
 
   const toggleSortDirection = () => {
@@ -51,21 +49,17 @@ const ManageListings = () => {
   };
 
   useEffect(() => {
-    setLoadingTypes(true);
     searchPropertyTypesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
       .then(res => {
         setPropertyTypes(res.items || []);
       })
-      .finally(() => setLoadingTypes(false));
   }, []);
 
   useEffect(() => {
-    setLoadingStatuses(true);
     searchPropertyStatusesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
       .then(res => {
         setPropertyStatuses(res.items || []);
       })
-      .finally(() => setLoadingStatuses(false));
   }, []);
 
   // Map API data to UI models
@@ -79,7 +73,7 @@ const ManageListings = () => {
         property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.address.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesNeighborhood =
-        selectedNeighborhood === "" || property.neighborhoodId === agentNeighborhoods.find(n => n.id === selectedNeighborhood)?.name;
+        selectedNeighborhood === "" || property.neighborhoodId === selectedNeighborhood;
       return matchesSearch && matchesNeighborhood;
     })
     .sort((a, b) => {

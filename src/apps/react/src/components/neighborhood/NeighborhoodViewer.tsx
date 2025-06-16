@@ -31,7 +31,7 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
     if (!viewerContainer.current || !neighborhood) return;
 
     // Use the panorama field from the neighborhood object (extend type if needed)
-    const panoramaUrl = (neighborhood as NeighborhoodResponse & { panorama?: string }).panorama || "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg";
+    const panoramaUrl = (neighborhood as NeighborhoodResponse & { panorama?: string }).panorama || "/assets/16.jpg";
 
     if (sphereViewer.current) {
       sphereViewer.current.destroy();
