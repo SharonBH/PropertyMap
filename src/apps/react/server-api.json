@@ -658,6 +658,36 @@
         }
       }
     },
+    "/api/v{version}/catalog/files/upload": {
+      "post": {
+        "tags": [
+          "files"
+        ],
+        "summary": "Uploads a file and returns its URL.",
+        "description": "Uploads a file to storage and returns the public URL.",
+        "operationId": "FileUpload",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "The requested API version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/api/v{version}/catalog/neighborhoods": {
       "post": {
         "tags": [
@@ -3704,6 +3734,26 @@
           "markerPitch": {
             "type": "number",
             "format": "double"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePropertyImageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePropertyImageDto": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -4068,6 +4118,23 @@
         },
         "additionalProperties": false
       },
+      "PropertyImageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "PropertyResponse": {
         "type": "object",
         "properties": {
@@ -4140,6 +4207,13 @@
           "markerPitch": {
             "type": "number",
             "format": "double"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyImageResponse"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5330,6 +5404,31 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdatePropertyImageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePropertyImageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

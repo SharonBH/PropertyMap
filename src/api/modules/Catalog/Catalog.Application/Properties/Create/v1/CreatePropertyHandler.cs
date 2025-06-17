@@ -14,6 +14,13 @@ public sealed class CreatePropertyHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var property = Property.Create(request.Name!, request.Description, request.NeighborhoodId, request.Address, request.AskingPrice, request.Size, request.Rooms, request.Bathrooms, request.PropertyTypeId, request.PropertyStatusId, request.AgencyId, request.ListedDate, request.FeatureList, request.MarkerYaw, request.MarkerPitch);
+        if (request.Images is not null && request.Images.Count > 0)
+        {
+            foreach (var img in request.Images)
+            {
+                property.Images.Add(new PropertyImage(property.Id, img.ImageUrl, img.IsMain));
+            }
+        }
         await repository.AddAsync(property, cancellationToken);
         logger.LogInformation("property created {PropertyId}", property.Id);
         return new CreatePropertyResponse(property.Id);

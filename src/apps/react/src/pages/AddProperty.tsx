@@ -11,6 +11,8 @@ import MarkerPositioner from "@/components/MarkerPositioner";
 import Navbar from "@/components/Navbar";
 import PropertyFormFields from "@/components/property/PropertyFormFields";
 import { searchPropertyTypesEndpoint, createPropertyEndpoint, searchPropertyStatusesEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
+import { resolveImageUrl } from "@/lib/imageUrl";
+import type { PropertyFormSchema } from "@/components/property/PropertyFormFields";
 
 const formSchema = z.object({
   title: z.string().min(2, "הכותרת חייבת להכיל לפחות 2 תווים"),
@@ -29,6 +31,10 @@ const formSchema = z.object({
     pitch: z.number(),
   }),
   propertyStatusId: z.string().min(1, "יש לבחור סטטוס"),
+  images: z.array(z.object({
+    url: z.string().min(1, "יש להזין כתובת תמונה חוקית"),
+    isMain: z.boolean()
+  })).min(1, "יש להעלות לפחות תמונה אחת"),
 });
 
 const AddProperty = () => {
@@ -59,7 +65,7 @@ const AddProperty = () => {
       .finally(() => setLoadingStatuses(false));
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<PropertyFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -75,10 +81,11 @@ const AddProperty = () => {
       featureList: "",
       markerPosition: { yaw: 0, pitch: 0 },
       propertyStatusId: "",
+      images: [],
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: PropertyFormSchema) => {
     const payload = {
       name: values.title,
       description: values.description,
@@ -95,6 +102,7 @@ const AddProperty = () => {
       propertyStatusId: values.propertyStatusId,
       markerYaw: values.markerPosition.yaw,
       markerPitch: values.markerPosition.pitch,
+      images: values.images.map(img => ({ imageUrl: resolveImageUrl(img.url), isMain: img.isMain })),
     };
     try {
       await createPropertyEndpoint(payload, "1");

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   FormField,
   FormItem,
@@ -16,10 +16,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UseFormReturn } from 'react-hook-form';
-import { NeighborhoodResponse, PropertyTypeResponse, PropertyStatusResponse } from '@/api/homemapapi';
+import { NeighborhoodResponse, PropertyTypeResponse, PropertyStatusResponse, fileUpload } from '@/api/homemapapi';
+import { z } from "zod";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
-interface PropertyFormFieldsProps<T = unknown> {
-  form: UseFormReturn<T>;
+// Move schema and type to a separate file if needed to avoid Fast Refresh error
+export type PropertyImageForm = { url: string; isMain: boolean };
+export interface PropertyFormSchema {
+  title: string;
+  description: string;
+  price: string;
+  bedrooms: string;
+  bathrooms: string;
+  size: string;
+  address: string;
+  status: string;
+  neighborhoodId: string;
+  propertyTypeId: string;
+  featureList?: string;
+  markerPosition: { yaw: number; pitch: number };
+  propertyStatusId: string;
+  images: PropertyImageForm[];
+}
+
+interface FileUploadResponse {
+  url: string;
+}
+
+interface PropertyFormFieldsProps {
+  form: UseFormReturn<PropertyFormSchema>;
   neighborhoods: NeighborhoodResponse[];
   onNeighborhoodChange: (value: string) => void;
   propertyTypes: PropertyTypeResponse[];
@@ -28,7 +53,7 @@ interface PropertyFormFieldsProps<T = unknown> {
   loadingStatuses?: boolean;
 }
 
-const PropertyFormFields = <T = unknown>({
+const PropertyFormFields = ({
   form,
   neighborhoods,
   onNeighborhoodChange,
@@ -36,7 +61,72 @@ const PropertyFormFields = <T = unknown>({
   loadingTypes,
   propertyStatuses,
   loadingStatuses,
-}: PropertyFormFieldsProps<T>) => {
+}: PropertyFormFieldsProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const images = form.watch("images");
+  const [imageUploadError, setImageUploadError] = React.useState<string>("");
+
+  // Upload image to API and return the URL
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      // fileUpload now returns unknown, so cast to expected type
+      const response = await fileUpload("1", { data: formData }) as unknown as { url?: string };
+      if (response && typeof response.url === "string" && response.url.length > 0) {
+        return response.url;
+      } else {
+        setImageUploadError("העלאת התמונה נכשלה: כתובת לא חוקית מהשרת");
+        return null;
+      }
+    } catch (err) {
+      setImageUploadError("העלאת התמונה נכשלה. נסה שוב.");
+      return null;
+    }
+  };
+
+  // Handle file input change
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageUploadError("");
+    const files = e.target.files;
+    if (!files) return;
+    const newImages: PropertyImageForm[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = await uploadImage(file);
+      if (url) {
+        newImages.push({ url, isMain: false });
+      }
+    }
+    if (newImages.length === 0) {
+      setImageUploadError("לא ניתן להעלות את התמונות. ודא שהקבצים תקינים ונסה שוב.");
+    }
+    // Use latest images from form state
+    const currentImages = form.getValues("images") || [];
+    form.setValue("images", [...currentImages, ...newImages], { shouldValidate: true, shouldDirty: true });
+  };
+
+  // Set main image
+  const setMainImage = (idx: number) => {
+    const currentImages = form.getValues("images") || [];
+    form.setValue(
+      "images",
+      currentImages.map((img, i) => ({ ...img, isMain: i === idx })),
+      { shouldValidate: true, shouldDirty: true }
+    );
+  };
+
+  // Remove image
+  const removeImage = (idx: number) => {
+    const currentImages = form.getValues("images") || [];
+    const updated = currentImages.filter((_, i) => i !== idx);
+    // If main image was removed, set first as main if any left
+    if (!updated.some(img => img.isMain) && updated.length > 0) {
+      updated[0].isMain = true;
+    }
+    form.setValue("images", updated, { shouldValidate: true, shouldDirty: true });
+  };
+
   return (
     <>
       <FormField
@@ -228,6 +318,85 @@ const PropertyFormFields = <T = unknown>({
               <Input placeholder="הזן תכונות מופרדות בפסיק" {...field} />
             </FormControl>
             <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Property Images Upload */}
+      <FormField
+        control={form.control}
+        name="images"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>תמונות נכס</FormLabel>
+            <FormControl>
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileChange}
+                  title="בחר תמונות להעלאה"
+                  placeholder="בחר תמונות להעלאה"
+                />
+                <button
+                  type="button"
+                  className="mb-2 px-3 py-1 bg-primary text-white rounded"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  העלה תמונות
+                </button>
+                {imageUploadError && (
+                  <div className="text-red-500 text-xs mb-2">{imageUploadError}</div>
+                )}
+                {form.formState.errors.images && (
+                  <div className="text-red-500 text-xs mb-2">
+                    {form.formState.errors.images.message || "יש להעלות לפחות תמונה אחת"}
+                  </div>
+                )}
+                {Array.isArray(field.value) && field.value.length > 0 && (
+                  <ul className="mt-2 flex flex-wrap gap-4">
+                    {field.value.map((img: PropertyImageForm, idx: number) => (
+                      <li key={idx} className="flex flex-col items-center gap-1 border rounded p-2 relative">
+                        <img
+                          src={resolveImageUrl(img.url)}
+                          alt="property"
+                          className="w-24 h-24 object-cover rounded"
+                          onError={(e) => {
+                            // Prevent infinite loop: only set to broken-image if not already
+                            const target = e.target as HTMLImageElement;
+                            if (!target.dataset.broken) {
+                              target.src = '/broken-image.png';
+                              target.dataset.broken = 'true';
+                            }
+                          }}
+                        />
+                        <div className="flex gap-2 mt-1">
+                          <button
+                            type="button"
+                            className={`px-2 py-1 rounded text-xs ${img.isMain ? "bg-green-600 text-white" : "bg-gray-200"}`}
+                            onClick={() => setMainImage(idx)}
+                            disabled={img.isMain}
+                          >
+                            {img.isMain ? "תמונה ראשית" : "הפוך לראשית"}
+                          </button>
+                          <button
+                            type="button"
+                            className="px-2 py-1 rounded text-xs bg-red-500 text-white"
+                            onClick={() => removeImage(idx)}
+                          >
+                            מחק
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </FormControl>
+            {/* Remove <FormMessage /> here to avoid duplicate/undefined error */}
           </FormItem>
         )}
       />

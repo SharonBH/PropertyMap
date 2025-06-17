@@ -33,6 +33,7 @@ public sealed class CatalogDbContext : FshDbContext
     public DbSet<PropertyType> PropertyTypes { get; set; } = null!;
     public DbSet<Property> Properties { get; set; } = null!;
     public DbSet<PropertyStatus> PropertyStatuses { get; set; } = null!;
+    public DbSet<PropertyImage> PropertyImages { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -4,10 +4,17 @@ import { PropertyResponse, searchPropertyTypesEndpoint, searchPropertyStatusesEn
 import { Bed, Bath, Square, Map, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
 interface PropertyCardProps {
   property: PropertyResponse;
   isHighlighted?: boolean;
+}
+
+function getMainImage(images?: { imageUrl?: string | null; isMain?: boolean }[] | null) {
+  if (!images || images.length === 0) return '/placeholder-image.jpg';
+  const main = images.find(img => img.isMain);
+  return resolveImageUrl(main?.imageUrl ?? images[0].imageUrl);
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ 
@@ -26,11 +33,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const propertyStatus = propertyStatuses.find(s => s.id === property.propertyStatusId);
   const formatPrice = (price?: number | null) => price ? price.toLocaleString("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 0 }) : "-";
 
-  // Use a fallback image if images array is not present
-  // If you want to support images, extend PropertyResponse with images?: string[]
-  const imageUrl = (property as { images?: string[] }).images && (property as { images?: string[] }).images!.length > 0
-    ? (property as { images?: string[] }).images![0]
-    : "/placeholder-image.jpg";
+  const imageUrl = getMainImage(property.images);
 
   return (
     <div 

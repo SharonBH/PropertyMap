@@ -20,4 +20,5 @@ public sealed record UpdatePropertyCommand(
     string? FeatureList,
     Guid? PropertyStatusId,
     decimal? MarkerYaw,
-    decimal? MarkerPitch) : IRequest<UpdatePropertyResponse>;
+    decimal? MarkerPitch,
+    IReadOnlyList<UpdatePropertyImageDto>? Images) : IRequest<UpdatePropertyResponse>;

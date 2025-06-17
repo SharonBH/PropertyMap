@@ -265,6 +265,14 @@ export interface CreatePropertyCommand {
   propertyStatusId?: string;
   markerYaw?: number;
   markerPitch?: number;
+  /** @nullable */
+  images?: CreatePropertyImageDto[] | null;
+}
+
+export interface CreatePropertyImageDto {
+  /** @nullable */
+  imageUrl?: string | null;
+  isMain?: boolean;
 }
 
 export interface CreatePropertyResponse {
@@ -424,6 +432,13 @@ export interface ProductResponsePagedList {
   readonly hasNext?: boolean;
 }
 
+export interface PropertyImageResponse {
+  id?: string;
+  /** @nullable */
+  imageUrl?: string | null;
+  isMain?: boolean;
+}
+
 export interface PropertyResponse {
   id?: string;
   /** @nullable */
@@ -448,6 +463,8 @@ export interface PropertyResponse {
   propertyStatusId?: string;
   markerYaw?: number;
   markerPitch?: number;
+  /** @nullable */
+  images?: PropertyImageResponse[] | null;
 }
 
 export interface PropertyResponsePagedList {
@@ -922,6 +939,16 @@ export interface UpdatePropertyCommand {
   markerYaw?: number | null;
   /** @nullable */
   markerPitch?: number | null;
+  /** @nullable */
+  images?: UpdatePropertyImageDto[] | null;
+}
+
+export interface UpdatePropertyImageDto {
+  /** @nullable */
+  id?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
+  isMain?: boolean;
 }
 
 export interface UpdatePropertyResponse {
@@ -2129,6 +2156,70 @@ export const useSearchCitiesEndpoint = <TError = ErrorType<unknown>,
       > => {
 
       const mutationOptions = getSearchCitiesEndpointMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Uploads a file to storage and returns the public URL.
+ * @summary Uploads a file and returns its URL.
+ */
+export const fileUpload = (
+    version: string = '1',
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `/api/v${version}/catalog/files/upload`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getFileUploadMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fileUpload>>, TError,{version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof fileUpload>>, TError,{version?: string}, TContext> => {
+
+const mutationKey = ['fileUpload'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fileUpload>>, {version?: string}> = (props) => {
+          const {version} = props ?? {};
+
+          return  fileUpload(version,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FileUploadMutationResult = NonNullable<Awaited<ReturnType<typeof fileUpload>>>
+    
+    export type FileUploadMutationError = ErrorType<void>
+
+    /**
+ * @summary Uploads a file and returns its URL.
+ */
+export const useFileUpload = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fileUpload>>, TError,{version?: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof fileUpload>>,
+        TError,
+        {version?: string},
+        TContext
+      > => {
+
+      const mutationOptions = getFileUploadMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }

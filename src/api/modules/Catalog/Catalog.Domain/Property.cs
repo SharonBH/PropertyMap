@@ -28,6 +28,7 @@ public class Property : AuditableEntity, IAggregateRoot
     public virtual PropertyStatus PropertyStatus { get; private set; } = default!;
     public decimal MarkerYaw { get; private set; }
     public decimal MarkerPitch { get; private set; }
+    public virtual ICollection<PropertyImage> Images { get; private set; } = new List<PropertyImage>();
 
     private Property() { }
 
@@ -49,6 +50,7 @@ public class Property : AuditableEntity, IAggregateRoot
         FeatureList = featureList;
         MarkerYaw = markerYaw;
         MarkerPitch = markerPitch;
+        Images = new List<PropertyImage>();
 
         QueueDomainEvent(new PropertyCreated { Property = this });
     }
@@ -92,7 +94,7 @@ public class Property : AuditableEntity, IAggregateRoot
             isUpdated = true;
         }
 
-        if (size.HasValue && Size != size.Value)
+        if (size.HasValue && Math.Abs(Size - size.Value) > 0.0001)
         {
             Size = size.Value;
             isUpdated = true;

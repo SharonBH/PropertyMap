@@ -16,6 +16,12 @@ interface PropertiesTableProps {
   handleDeleteProperty: (id: string) => void;
 }
 
+function getMainImage(images?: { imageUrl?: string | null; isMain?: boolean }[] | null) {
+  if (!images || images.length === 0) return '/placeholder-image.jpg';
+  const main = images.find(img => img.isMain);
+  return (main?.imageUrl ?? images[0].imageUrl) || '/placeholder-image.jpg';
+}
+
 const PropertiesTable: React.FC<PropertiesTableProps> = ({
   properties,
   neighborhoods,
@@ -91,7 +97,7 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
         
         <tbody>
           {properties.length > 0 ? (
-            properties.map((property) => {
+            properties.map((property: PropertyResponse) => {
               const neighborhood = neighborhoods.find(
                 (n) => n.id === property.neighborhoodId
               );
@@ -111,7 +117,7 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
                     <div className="flex items-center">
                       <div 
                         className="h-10 w-10 rounded-md bg-cover bg-center ml-3"
-                        style={{ backgroundImage: `url(${property.images && property.images.length > 0 ? property.images[0] : '/placeholder-image.jpg'})` }}
+                        style={{ backgroundImage: `url(${getMainImage(property.images)})` }}
                       />
                       <div>
                         <div className="font-medium text-estate-dark-gray">

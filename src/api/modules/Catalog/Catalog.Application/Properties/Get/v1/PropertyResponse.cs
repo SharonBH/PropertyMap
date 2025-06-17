@@ -20,4 +20,5 @@ public sealed record PropertyResponse(
     //string PropertyStatusName,
     Guid PropertyStatusId,
     decimal MarkerYaw,
-    decimal MarkerPitch);
+    decimal MarkerPitch,
+    IReadOnlyList<PropertyImageResponse> Images);

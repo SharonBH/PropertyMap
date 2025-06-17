@@ -16,6 +16,7 @@
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Seq" Version="9.0.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.1" />
     <PackageVersion Include="Finbuckle.MultiTenant" Version="9.0.0" />
     <PackageVersion Include="Finbuckle.MultiTenant.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="9.0.0" />

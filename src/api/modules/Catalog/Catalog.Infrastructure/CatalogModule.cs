@@ -4,10 +4,12 @@ using FSH.Framework.Infrastructure.Persistence;
 using FSH.Starter.WebApi.Catalog.Domain;
 using FSH.Starter.WebApi.Catalog.Infrastructure.Endpoints.v1;
 using FSH.Starter.WebApi.Catalog.Infrastructure.Persistence;
+using FSH.Starter.WebApi.Catalog.Infrastructure.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 
 namespace FSH.Starter.WebApi.Catalog.Infrastructure;
 public static class CatalogModule
@@ -87,6 +89,28 @@ public static class CatalogModule
             propertyStatusGroup.MapPropertyStatusUpdateEndpoint();
             propertyStatusGroup.MapPropertyStatusDeleteEndpoint();
 
+            // File upload endpoint (minimal API style)
+            app.MapPost("/files/upload", async (IFileStorageService fileStorageService, HttpRequest request, CancellationToken cancellationToken) =>
+            {
+                if (!request.HasFormContentType)
+                    return Results.BadRequest("No file uploaded");
+
+                var form = await request.ReadFormAsync(cancellationToken);
+                var file = form.Files["file"];
+                if (file == null || file.Length == 0)
+                    return Results.BadRequest("No file uploaded");
+
+                var url = await fileStorageService.UploadAsync(file.OpenReadStream(), file.FileName, file.ContentType, cancellationToken);
+                return Results.Ok(new { url });
+            })
+            .WithName("FileUpload")
+            .WithTags("files")
+            .WithSummary("Uploads a file and returns its URL.")
+            .WithDescription("Uploads a file to storage and returns the public URL.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .MapToApiVersion(1);
+
         
         }
     }
@@ -115,6 +139,17 @@ public static class CatalogModule
         builder.Services.AddKeyedScoped<IReadRepository<Review>, CatalogRepository<Review>>("catalog:reviews");
         builder.Services.AddKeyedScoped<IRepository<PropertyStatus>, CatalogRepository<PropertyStatus>>("catalog:propertystatuses");
         builder.Services.AddKeyedScoped<IReadRepository<PropertyStatus>, CatalogRepository<PropertyStatus>>("catalog:propertystatuses");
+        var services = builder.Services;
+        var config = builder.Configuration;
+        var storageProvider = config["STORAGE_PROVIDER"] ?? "local";
+        if (string.Equals(storageProvider, "azure", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IFileStorageService, AzureBlobStorageService>();
+        }
+        else
+        {
+            services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+        }
         return builder;
     }
     public static WebApplication UseCatalogModule(this WebApplication app)

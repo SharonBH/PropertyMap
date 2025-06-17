@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ContactForm from "@/components/ContactForm";
 import { useProperties } from "@/hooks/useProperties";
-import { formatPrice, Property } from "@/lib/data";
+import { formatPrice } from "@/lib/data";
+import { PropertyResponse } from "@/api/homemapapi";
 import { 
   ArrowRight, 
   Bed, 
@@ -17,23 +17,31 @@ import {
   Check 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/imageUrl";
+
+const getMainImage = (images: { imageUrl?: string | null; isMain?: boolean }[] | null | undefined) => {
+  if (!images || images.length === 0) return '/placeholder-image.jpg';
+  const main = images.find(img => img.isMain);
+  return resolveImageUrl(main?.imageUrl ?? images[0].imageUrl);
+};
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { getPropertyById, currentAgent } = useProperties();
-  const [property, setProperty] = useState<Property | null>(null);
+  const { currentAgent, getPropertyById } = useProperties() as any;
+  const [property, setProperty] = useState<PropertyResponse | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      // Simulate loading
       setIsLoading(true);
       setTimeout(() => {
-        const foundProperty = getPropertyById(id);
+        const foundProperty = getPropertyById ? getPropertyById(id) : null;
         setProperty(foundProperty || null);
-        if (foundProperty) {
-          setSelectedImage(foundProperty.images[0]);
+        if (foundProperty && foundProperty.images && foundProperty.images.length > 0) {
+          setSelectedImage(getMainImage(foundProperty.images));
+        } else {
+          setSelectedImage('/placeholder-image.jpg');
         }
         setIsLoading(false);
       }, 800);
@@ -77,7 +85,7 @@ const PropertyDetails = () => {
     );
   }
 
-  const agent = getAgentById(property.agentId);
+  const agent = currentAgent; // Assuming currentAgent is the agent for the property
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-estate-cream/30">
@@ -94,7 +102,7 @@ const PropertyDetails = () => {
           </Link>
           
           <h1 className="text-3xl font-bold text-estate-dark-gray mb-2">
-            {property.title}
+            {property.name}
           </h1>
           
           <div className="flex items-center text-gray-600 mb-2">
@@ -103,7 +111,7 @@ const PropertyDetails = () => {
           </div>
           
           <div className="text-2xl font-bold text-estate-blue">
-            {formatPrice(property.price)}
+            {formatPrice(property.askingPrice || 0)}
           </div>
         </div>
         
@@ -112,36 +120,40 @@ const PropertyDetails = () => {
             <div className="mb-6">
               <div className="rounded-lg overflow-hidden shadow-soft mb-4">
                 <img
-                  src={selectedImage}
-                  alt={property.title}
+                  src={selectedImage || '/placeholder-image.jpg'}
+                  alt={property.name}
                   className="w-full h-80 object-cover"
                 />
               </div>
               
               <div className="flex space-x-4 rtl:space-x-reverse overflow-auto pb-2">
-                {property.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(image)}
-                    className={cn(
-                      "relative min-w-[100px] h-20 rounded-md overflow-hidden transition-all duration-200",
-                      selectedImage === image ? "ring-2 ring-estate-blue" : "opacity-70 hover:opacity-100"
-                    )}
-                  >
-                    <img
-                      src={image}
-                      alt={`${property.title} - תמונה ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {property.images && property.images.length > 0 ? (
+                  property.images.map((img, index) => (
+                    <button
+                      key={img.id || index}
+                      onClick={() => setSelectedImage(resolveImageUrl(img.imageUrl))}
+                      className={cn(
+                        "relative min-w-[100px] h-20 rounded-md overflow-hidden transition-all duration-200",
+                        selectedImage === resolveImageUrl(img.imageUrl) ? "ring-2 ring-estate-blue" : "opacity-70 hover:opacity-100"
+                      )}
+                    >
+                      <img
+                        src={resolveImageUrl(img.imageUrl)}
+                        alt={`${property.name} - תמונה ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-gray-400">אין תמונות להצגה</div>
+                )}
               </div>
             </div>
             
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="bg-white p-4 rounded-lg shadow-sm text-center">
                 <Bed className="h-6 w-6 mx-auto mb-2 text-estate-blue" />
-                <span className="block font-bold text-lg">{property.bedrooms}</span>
+                <span className="block font-bold text-lg">{property.rooms}</span>
                 <span className="text-sm text-gray-600">חדרים</span>
               </div>
               

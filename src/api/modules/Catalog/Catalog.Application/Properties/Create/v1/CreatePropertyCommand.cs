@@ -17,4 +17,5 @@ public sealed record CreatePropertyCommand(
     string FeatureList,
     Guid PropertyStatusId,
     decimal MarkerYaw,
-    decimal MarkerPitch) : IRequest<CreatePropertyResponse>;
+    decimal MarkerPitch,
+    IReadOnlyList<CreatePropertyImageDto> Images) : IRequest<CreatePropertyResponse>;
