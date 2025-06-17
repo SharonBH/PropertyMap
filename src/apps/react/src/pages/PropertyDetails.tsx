@@ -27,16 +27,23 @@ const getMainImage = (images: { imageUrl?: string | null; isMain?: boolean }[] |
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { currentAgent, getPropertyById } = useProperties() as any;
+  const { currentAgent, getPropertyById } = useProperties();
   const [property, setProperty] = useState<PropertyResponse | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const getPropertyByIdRef = React.useRef(getPropertyById);
 
   useEffect(() => {
+    getPropertyByIdRef.current = getPropertyById;
+  }, [getPropertyById]);
+
+  useEffect(() => {
+    let isMounted = true;
     if (id) {
       setIsLoading(true);
-      setTimeout(() => {
-        const foundProperty = getPropertyById ? getPropertyById(id) : null;
+      (async () => {
+        const foundProperty = getPropertyByIdRef.current ? await getPropertyByIdRef.current(id) : null;
+        if (!isMounted) return;
         setProperty(foundProperty || null);
         if (foundProperty && foundProperty.images && foundProperty.images.length > 0) {
           setSelectedImage(getMainImage(foundProperty.images));
@@ -44,9 +51,10 @@ const PropertyDetails = () => {
           setSelectedImage('/placeholder-image.jpg');
         }
         setIsLoading(false);
-      }, 800);
+      })();
     }
-  }, [id, getPropertyById]);
+    return () => { isMounted = false; };
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -128,22 +136,26 @@ const PropertyDetails = () => {
               
               <div className="flex space-x-4 rtl:space-x-reverse overflow-auto pb-2">
                 {property.images && property.images.length > 0 ? (
-                  property.images.map((img, index) => (
-                    <button
-                      key={img.id || index}
-                      onClick={() => setSelectedImage(resolveImageUrl(img.imageUrl))}
-                      className={cn(
-                        "relative min-w-[100px] h-20 rounded-md overflow-hidden transition-all duration-200",
-                        selectedImage === resolveImageUrl(img.imageUrl) ? "ring-2 ring-estate-blue" : "opacity-70 hover:opacity-100"
-                      )}
-                    >
-                      <img
-                        src={resolveImageUrl(img.imageUrl)}
-                        alt={`${property.name} - תמונה ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))
+                  property.images.map((img, index) => {
+                    const imgUrl = resolveImageUrl(img.imageUrl);
+                    return (
+                      <button
+                        key={img.id || index}
+                        type="button"
+                        onClick={() => setSelectedImage(imgUrl)}
+                        className={cn(
+                          "relative min-w-[100px] h-20 rounded-md overflow-hidden transition-all duration-200",
+                          selectedImage === imgUrl ? "ring-2 ring-estate-blue" : "opacity-70 hover:opacity-100"
+                        )}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`${property.name} - תמונה ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })
                 ) : (
                   <div className="text-gray-400">אין תמונות להצגה</div>
                 )}
@@ -178,10 +190,10 @@ const PropertyDetails = () => {
               
               <h3 className="text-lg font-bold text-estate-dark-gray mb-3">מאפיינים</h3>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-2">
-                {property.features.map((feature, index) => (
+                {(property.featureList ? property.featureList.split(",") : []).map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <Check className="h-5 w-5 ml-2 text-estate-teal" />
-                    <span>{feature}</span>
+                    <span>{feature.trim()}</span>
                   </li>
                 ))}
               </ul>
@@ -192,7 +204,7 @@ const PropertyDetails = () => {
               <div className="flex items-center mb-3">
                 <Calendar className="h-5 w-5 ml-2 text-estate-blue" />
                 <span className="text-gray-700">
-                  תאריך פרסום: {new Date(property.createdAt).toLocaleDateString("he-IL")}
+                  תאריך פרסום: {new Date(property.listedDate).toLocaleDateString("he-IL")}
                 </span>
               </div>
             </div>

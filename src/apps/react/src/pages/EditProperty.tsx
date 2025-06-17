@@ -98,7 +98,7 @@ const EditProperty = () => {
             pitch: res.markerPitch ?? 0,
           },
           images: Array.isArray(res.images)
-            ? res.images.map(img => ({ url: img.imageUrl, isMain: img.isMain }))
+            ? res.images.map(img => ({ url: resolveImageUrl(img.imageUrl ? img.imageUrl : img.url), isMain: img.isMain }))
             : [],
         });
         setSelectedNeighborhood(

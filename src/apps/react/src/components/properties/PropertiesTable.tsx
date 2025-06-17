@@ -115,9 +115,11 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      <div 
-                        className="h-10 w-10 rounded-md bg-cover bg-center ml-3"
-                        style={{ backgroundImage: `url(${getMainImage(property.images)})` }}
+                      <img
+                        src={getMainImage(property.images)}
+                        alt={property.name}
+                        className="h-14 w-20 object-cover rounded-md shadow-sm border border-gray-200 ml-3"
+                        style={{ minWidth: 80, minHeight: 56 }}
                       />
                       <div>
                         <div className="font-medium text-estate-dark-gray">

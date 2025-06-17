@@ -18,7 +18,9 @@ public sealed class GetPropertyHandler(
             $"Property:{request.Id}",
             async () =>
             {
-                var PropertyItem = await repository.GetByIdAsync(request.Id, cancellationToken);
+                // Use specification to include Images
+                var spec = new GetPropertySpecs(request.Id);
+                var PropertyItem = await repository.FirstOrDefaultAsync(spec, cancellationToken);
                 if (PropertyItem == null) throw new PropertyNotFoundException(request.Id);
                 var images = PropertyItem.Images.Select(img => new PropertyImageResponse(img.Id, img.ImageUrl, img.IsMain)).ToList();
                 return new PropertyResponse(PropertyItem.Id, PropertyItem.Name, PropertyItem.Description, PropertyItem.Address, PropertyItem.AskingPrice, PropertyItem.Size, PropertyItem.Rooms, PropertyItem.Bathrooms, PropertyItem.NeighborhoodId, PropertyItem.PropertyTypeId, PropertyItem.ListedDate, PropertyItem.SoldDate, PropertyItem.SoldPrice, PropertyItem.FeatureList, PropertyItem.PropertyStatusId, PropertyItem.MarkerYaw, PropertyItem.MarkerPitch, images);

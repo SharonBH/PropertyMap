@@ -6,6 +6,7 @@ import {
   ReviewResponse,
   searchPropertiesEndpoint,
   searchReviewsEndpoint,
+  getPropertyEndpoint,
 } from "@/api/homemapapi";
 
 export function useProperties() {
@@ -122,6 +123,20 @@ export function useProperties() {
     return total / agentReviews.length;
   };
 
+  // Get property by id, first from state, then from API if not found
+  const getPropertyById = async (id: string): Promise<PropertyResponse | null> => {
+    let property = allProperties.find((p) => p.id === id);
+    console.log("getPropertyById", id, property);
+    if (property) return property;
+    try {
+      const result = await getPropertyEndpoint(id, "1");
+      console.log("getPropertyById result", result);
+      return result as PropertyResponse;
+    } catch {
+      return null;
+    }
+  };
+
   return {
     currentAgent,
     selectedNeighborhood,
@@ -132,5 +147,6 @@ export function useProperties() {
     selectNeighborhood,
     agentProperties,
     calculateAverageRating,
+    getPropertyById,
   };
 }
