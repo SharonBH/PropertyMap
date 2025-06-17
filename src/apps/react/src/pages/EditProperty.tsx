@@ -10,8 +10,11 @@ import { useToast } from "@/components/ui/use-toast";
 import MarkerPositioner from "@/components/MarkerPositioner";
 import Navbar from "@/components/Navbar";
 import PropertyFormFields from "@/components/property/PropertyFormFields";
-import { searchPropertyTypesEndpoint, searchPropertyStatusesEndpoint, updatePropertyEndpoint, getPropertyEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
+import { searchPropertyTypesEndpoint, updatePropertyEndpoint, getPropertyEndpoint, PropertyTypeResponse, searchPropertyStatusesEndpoint, PropertyStatusResponse } from "@/api/homemapapi";
+import { resolveImageUrl } from "@/lib/imageUrl";
+import type { PropertyFormSchema } from "@/components/property/PropertyFormFields";
 
+// Remove status from everywhere, only use propertyStatusId
 const formSchema = z.object({
   title: z.string().min(2, "הכותרת חייבת להכיל לפחות 2 תווים"),
   description: z.string().min(10, "התיאור חייב להכיל לפחות 10 תווים"),
@@ -28,6 +31,7 @@ const formSchema = z.object({
     yaw: z.number(),
     pitch: z.number(),
   }),
+  images: z.array(z.object({ url: z.string().min(1), isMain: z.boolean() })).min(1, "יש להעלות לפחות תמונה אחת"),
 });
 
 const EditProperty = () => {
@@ -37,12 +41,12 @@ const EditProperty = () => {
   const { toast } = useToast();
   const [selectedNeighborhood, setSelectedNeighborhood] = React.useState(agentNeighborhoods[0]);
   const [propertyTypes, setPropertyTypes] = React.useState<PropertyTypeResponse[]>([]);
-  const [propertyStatuses, setPropertyStatuses] = React.useState<PropertyStatusResponse[]>([]);
   const [loadingTypes, setLoadingTypes] = React.useState(true);
-  const [loadingStatuses, setLoadingStatuses] = React.useState(true);
   const [loadingProperty, setLoadingProperty] = React.useState(true);
+  const [propertyStatuses, setPropertyStatuses] = React.useState<PropertyStatusResponse[]>([]);
+  const [loadingStatuses, setLoadingStatuses] = React.useState(true);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<PropertyFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -57,6 +61,7 @@ const EditProperty = () => {
       propertyTypeId: "",
       featureList: "",
       markerPosition: { yaw: 0, pitch: 0 },
+      images: [],
     },
   });
 
@@ -92,6 +97,9 @@ const EditProperty = () => {
             yaw: res.markerYaw ?? 0,
             pitch: res.markerPitch ?? 0,
           },
+          images: Array.isArray(res.images)
+            ? res.images.map(img => ({ url: img.imageUrl, isMain: img.isMain }))
+            : [],
         });
         setSelectedNeighborhood(
           agentNeighborhoods.find(n => n.id === res.neighborhoodId) || agentNeighborhoods[0]
@@ -101,7 +109,7 @@ const EditProperty = () => {
     // eslint-disable-next-line
   }, [id]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema> & { images: { url: string; isMain: boolean }[] }) => {
     const payload = {
       name: values.title,
       description: values.description,
@@ -117,6 +125,7 @@ const EditProperty = () => {
       featureList: values.featureList,
       markerYaw: values.markerPosition.yaw,
       markerPitch: values.markerPosition.pitch,
+      images: values.images?.map(img => ({ imageUrl: resolveImageUrl(img.url), isMain: img.isMain })) ?? [],
     };
     try {
       await updatePropertyEndpoint(id!, payload, "1");

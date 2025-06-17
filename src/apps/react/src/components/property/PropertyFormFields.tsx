@@ -30,7 +30,6 @@ export interface PropertyFormSchema {
   bathrooms: string;
   size: string;
   address: string;
-  status: string;
   neighborhoodId: string;
   propertyTypeId: string;
   featureList?: string;
