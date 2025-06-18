@@ -10,11 +10,12 @@ import { useToast } from "@/components/ui/use-toast";
 import MarkerPositioner from "@/components/MarkerPositioner";
 import Navbar from "@/components/Navbar";
 import PropertyFormFields from "@/components/property/PropertyFormFields";
-import { searchPropertyTypesEndpoint, updatePropertyEndpoint, getPropertyEndpoint, PropertyTypeResponse, searchPropertyStatusesEndpoint, PropertyStatusResponse } from "@/api/homemapapi";
-import { resolveImageUrl } from "@/lib/imageUrl";
+import { searchPropertyTypesEndpoint, updatePropertyEndpoint, getPropertyEndpoint, PropertyTypeResponse, searchPropertyStatusesEndpoint, PropertyStatusResponse, getNeighborhoodEndpoint } from "@/api/homemapapi";
+import { resolveImageUrl, resolveNeighborhoodUrl } from "@/lib/imageUrl";
 import type { PropertyFormSchema } from "@/components/property/PropertyFormFields";
+import type { NeighborhoodResponse } from "@/api/homemapapi";
+import PropertySphereMarkerDemo from "@/components/property/PropertySphereMarkerDemo";
 
-// Remove status from everywhere, only use propertyStatusId
 const formSchema = z.object({
   title: z.string().min(2, "הכותרת חייבת להכיל לפחות 2 תווים"),
   description: z.string().min(10, "התיאור חייב להכיל לפחות 10 תווים"),
@@ -39,12 +40,13 @@ const EditProperty = () => {
   const navigate = useNavigate();
   const { currentAgent, agentNeighborhoods } = useProperties();
   const { toast } = useToast();
-  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState(agentNeighborhoods[0]);
+  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState<NeighborhoodResponse | null>(null);
   const [propertyTypes, setPropertyTypes] = React.useState<PropertyTypeResponse[]>([]);
   const [loadingTypes, setLoadingTypes] = React.useState(true);
   const [loadingProperty, setLoadingProperty] = React.useState(true);
   const [propertyStatuses, setPropertyStatuses] = React.useState<PropertyStatusResponse[]>([]);
   const [loadingStatuses, setLoadingStatuses] = React.useState(true);
+  const [loadingNeighborhood, setLoadingNeighborhood] = React.useState(true);
 
   const form = useForm<PropertyFormSchema>({
     resolver: zodResolver(formSchema),
@@ -81,6 +83,8 @@ const EditProperty = () => {
     setLoadingProperty(true);
     getPropertyEndpoint(id!, "1")
       .then(res => {
+        // Log markerYaw and markerPitch for debugging
+        console.log('[EditProperty] markerYaw:', res.markerYaw, 'markerPitch:', res.markerPitch);
         form.reset({
           title: res.name,
           description: res.description,
@@ -94,19 +98,34 @@ const EditProperty = () => {
           propertyTypeId: res.propertyTypeId ?? "",
           featureList: res.featureList ?? "",
           markerPosition: {
-            yaw: res.markerYaw ?? 0,
-            pitch: res.markerPitch ?? 0,
+            yaw: typeof res.markerYaw === 'number' ? res.markerYaw : 0,
+            pitch: typeof res.markerPitch === 'number' ? res.markerPitch : 0,
           },
           images: Array.isArray(res.images)
-            ? res.images.map(img => ({ url: resolveImageUrl(img.imageUrl ? img.imageUrl : img.url), isMain: img.isMain }))
+            ? res.images.map(img => ({ url: resolveImageUrl(img.imageUrl ? img.imageUrl : ""), isMain: img.isMain }))
             : [],
         });
-        setSelectedNeighborhood(
-          agentNeighborhoods.find(n => n.id === res.neighborhoodId) || agentNeighborhoods[0]
-        );
       })
       .finally(() => setLoadingProperty(false));
     // eslint-disable-next-line
+  }, [id]);
+
+  React.useEffect(() => {
+    setLoadingNeighborhood(true);
+    getPropertyEndpoint(id!, "1")
+      .then(property => {
+        if (property.neighborhoodId) {
+          getNeighborhoodEndpoint(property.neighborhoodId, "1")
+            .then(res => {
+              if (res.id) {
+                setSelectedNeighborhood(res);
+              }
+            })
+            .finally(() => setLoadingNeighborhood(false));
+        } else {
+          setLoadingNeighborhood(false);
+        }
+      });
   }, [id]);
 
   const onSubmit = async (values: z.infer<typeof formSchema> & { images: { url: string; isMain: boolean }[] }) => {
@@ -144,14 +163,23 @@ const EditProperty = () => {
   };
 
   const handleNeighborhoodChange = (value: string) => {
-    const neighborhood = agentNeighborhoods.find(n => n.id === value);
-    if (neighborhood) {
-      setSelectedNeighborhood(neighborhood);
-      form.setValue("markerPosition", { yaw: 0, pitch: 0 });
-    }
+    setLoadingNeighborhood(true);
+    getNeighborhoodEndpoint(value, "1")
+      .then(res => {
+        if (res.id === value) {
+          setSelectedNeighborhood(res);
+          form.setValue("markerPosition", { yaw: 0, pitch: 0 });
+        }
+      })
+      .finally(() => setLoadingNeighborhood(false));
   };
 
-  const markerPosition = form.watch("markerPosition");
+  // Ensure markerPosition has default values to prevent undefined errors
+  const watchedMarkerPosition = form.watch("markerPosition");
+  const markerPosition =
+    watchedMarkerPosition && typeof watchedMarkerPosition.yaw === 'number' && typeof watchedMarkerPosition.pitch === 'number'
+      ? watchedMarkerPosition
+      : { yaw: 0, pitch: 0 };
   const hasMarkerPosition = markerPosition.yaw !== 0 || markerPosition.pitch !== 0;
 
   if (loadingProperty) {
@@ -201,11 +229,10 @@ const EditProperty = () => {
           </Form>
           <div className="rounded-lg overflow-hidden border border-input bg-background">
             {selectedNeighborhood && (
-              <MarkerPositioner
-                neighborhood={selectedNeighborhood}
-                onPositionChange={(position) => {
-                  form.setValue("markerPosition", position);
-                }}
+              <PropertySphereMarkerDemo
+                panoramaUrl={resolveNeighborhoodUrl(selectedNeighborhood.sphereImgURL) || "https://localhost:7000/neighborhoods/16.jpg"}
+                yaw={markerPosition.yaw}
+                pitch={markerPosition.pitch}
               />
             )}
           </div>

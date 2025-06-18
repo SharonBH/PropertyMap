@@ -1,33 +1,71 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { useProperties } from "@/hooks/useProperties";
-import { PropertyResponse } from "@/api/homemapapi";
+import { PropertyResponse, getNeighborhoodEndpoint, searchPropertiesEndpoint, NeighborhoodResponse } from "@/api/homemapapi";
 import NeighborhoodViewer from "@/components/neighborhood/NeighborhoodViewer";
 import NeighborhoodOverlay from "@/components/neighborhood/NeighborhoodOverlay";
 
+const fetchPropertiesByNeighborhoodId = async (id: string): Promise<PropertyResponse[]> => {
+  const res = await searchPropertiesEndpoint({
+    advancedFilter: {
+      field: "neighborhoodId",
+      operator: "eq",
+      value: id,
+    },
+    pageNumber: 1,
+    pageSize: 100,
+  });
+  return res.items || [];
+};
+
 const NeighborhoodMap = () => {
   // Use useProperties to get all API data
-  const { agentNeighborhoods, agentProperties } = useProperties();
+  const { agentNeighborhoods: initialNeighborhoods } = useProperties();
 
-  // Use state for selected neighborhood only (no URL param)
+  // Local state for neighborhoods and properties
+  const [agentNeighborhoods, setAgentNeighborhoods] = useState(initialNeighborhoods);
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string | undefined>(
-    agentNeighborhoods.length > 0 ? agentNeighborhoods[0].id : undefined
+    initialNeighborhoods.length > 0 ? initialNeighborhoods[0].id : undefined
   );
-
-  useEffect(() => {
-    // If agentNeighborhoods changes, reset to first neighborhood
-    if (agentNeighborhoods.length > 0 && !selectedNeighborhoodId) {
-      setSelectedNeighborhoodId(agentNeighborhoods[0].id);
-    }
-  }, [agentNeighborhoods, selectedNeighborhoodId]);
-
-  const neighborhood = agentNeighborhoods.find((n) => n.id === selectedNeighborhoodId) || null;
-  const props = selectedNeighborhoodId ? agentProperties.filter((p) => p.neighborhoodId === selectedNeighborhoodId) : [];
+  const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<PropertyResponse | null>(null);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<NeighborhoodResponse | null>(null);
 
-  // Only update selectedProperty if the property list changes
+  // Sync local neighborhoods with hook
   useEffect(() => {
-    setSelectedProperty(null);
+    if (agentNeighborhoods.length === 0) {
+      setAgentNeighborhoods(initialNeighborhoods);
+      if (initialNeighborhoods.length > 0 && !selectedNeighborhoodId) {
+        setSelectedNeighborhoodId(initialNeighborhoods[0].id);
+      }
+    }
+  }, [initialNeighborhoods, selectedNeighborhoodId, agentNeighborhoods.length]);
+
+  // Fetch selected neighborhood from API
+  useEffect(() => {
+    const fetchSelectedNeighborhood = async () => {
+      if (!selectedNeighborhoodId) {
+        setSelectedNeighborhood(null);
+        return;
+      }
+      const neighborhood = await getNeighborhoodEndpoint(selectedNeighborhoodId);
+      setSelectedNeighborhood(neighborhood);
+    };
+    fetchSelectedNeighborhood();
+  }, [selectedNeighborhoodId]);
+
+  // Fetch properties for selected neighborhood
+  useEffect(() => {
+    const fetchProperties = async () => {
+      if (!selectedNeighborhoodId) {
+        setProperties([]);
+        return;
+      }
+      const props = await fetchPropertiesByNeighborhoodId(selectedNeighborhoodId);
+      setProperties(props);
+      setSelectedProperty(null);
+    };
+    fetchProperties();
   }, [selectedNeighborhoodId]);
 
   return (
@@ -40,8 +78,8 @@ const NeighborhoodMap = () => {
       />
       <div className="absolute inset-0 mt-16 flex items-center justify-center z-10">
         <NeighborhoodViewer
-          neighborhood={neighborhood}
-          properties={props}
+          neighborhood={selectedNeighborhood}
+          properties={properties}
           selectedProperty={selectedProperty}
           onSelectProperty={setSelectedProperty}
         />

@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { useMarkerPositioner } from "@/hooks/useMarkerPositioner";
 import { MarkerPositionerUI } from "./marker/MarkerPositionerUI";
@@ -9,11 +8,13 @@ import { NeighborhoodResponse } from "@/api/homemapapi";
 
 interface MarkerPositionerProps {
   neighborhood: NeighborhoodResponse;
+  markerPosition: { yaw: number; pitch: number };
   onPositionChange: (position: { yaw: number; pitch: number }) => void;
 }
 
 const MarkerPositioner: React.FC<MarkerPositionerProps> = ({ 
   neighborhood,
+  markerPosition,
   onPositionChange
 }) => {
   const viewerContainer = useRef<HTMLDivElement>(null);
@@ -24,8 +25,13 @@ const MarkerPositioner: React.FC<MarkerPositionerProps> = ({
   } = useMarkerPositioner({
     containerRef: viewerContainer,
     neighborhood,
+    markerPosition,
     onPositionChange
   });
+
+  if (!neighborhood || !markerPosition) {
+    return <div>Loading neighborhood...</div>;
+  }
 
   return (
     <MarkerPositionerUI

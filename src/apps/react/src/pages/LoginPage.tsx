@@ -26,7 +26,7 @@ const LoginPage = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Get the redirect path from location state or default to manage page
-  const from = location.state?.from || "/manage";
+  const from = location.state?.from || "/";
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -71,7 +71,7 @@ const LoginPage = () => {
 
   // If already authenticated, redirect to manage page
   if (isAuthenticated === true) {
-    return <Navigate to="/manage" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (

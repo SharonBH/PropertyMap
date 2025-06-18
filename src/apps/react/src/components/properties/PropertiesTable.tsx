@@ -3,6 +3,7 @@ import { formatPrice } from "@/lib/data";
 import { Edit, Trash, Map, ChevronUp, ChevronDown } from "lucide-react";
 import { Building } from "lucide-react";
 import { PropertyTypeResponse, PropertyStatusResponse, PropertyResponse, NeighborhoodResponse } from "@/api/homemapapi";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
 interface PropertiesTableProps {
   properties: PropertyResponse[];
@@ -19,7 +20,7 @@ interface PropertiesTableProps {
 function getMainImage(images?: { imageUrl?: string | null; isMain?: boolean }[] | null) {
   if (!images || images.length === 0) return '/placeholder-image.jpg';
   const main = images.find(img => img.isMain);
-  return (main?.imageUrl ?? images[0].imageUrl) || '/placeholder-image.jpg';
+  return resolveImageUrl(main?.imageUrl ?? images[0].imageUrl) || '/placeholder-image.jpg';
 }
 
 const PropertiesTable: React.FC<PropertiesTableProps> = ({

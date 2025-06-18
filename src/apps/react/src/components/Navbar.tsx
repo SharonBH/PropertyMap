@@ -42,12 +42,12 @@ const Navbar = () => {
             isActive={isActive("/")}
           />
           
-          <NavItem 
+         {/*  <NavItem 
             to="/manage" 
             icon={<Building className="h-4 w-4" />} 
             label="נכסים"
             isActive={isActive("/manage")}
-          />
+          /> */}
           
           <NavItem 
             to="/neighborhood" 

@@ -4,7 +4,7 @@ import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { Card, CardContent } from "@/components/ui/card";
 import PropertyCard from "@/components/PropertyCard";
 import { NeighborhoodResponse, PropertyResponse } from '@/api/homemapapi';
-
+import { resolveNeighborhoodUrl } from "@/lib/imageUrl";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 
@@ -25,13 +25,13 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
   const sphereViewer = useRef<Viewer | null>(null);
   const markersPlugin = useRef<MarkersPlugin | null>(null);
 
-  console.log("properties:", properties);
-  console.log("neighborhood:", neighborhood);
+  //console.log("properties:", properties);
+  //console.log("neighborhood:", neighborhood);
   useEffect(() => {
     if (!viewerContainer.current || !neighborhood) return;
 
     // Use the panorama field from the neighborhood object (extend type if needed)
-    const panoramaUrl = (neighborhood as NeighborhoodResponse & { panorama?: string }).panorama || "/assets/16.jpg";
+    const panoramaUrl = resolveNeighborhoodUrl((neighborhood as NeighborhoodResponse & { panorama?: string }).panorama || "/16.jpg");
 
     if (sphereViewer.current) {
       sphereViewer.current.destroy();
@@ -75,7 +75,7 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
     };
 
     markersPlugin.current.clearMarkers();
-    console.log("Markers added:", properties[0]?.markerYaw, properties[0]?.markerPitch);
+    //console.log("Markers added:", properties[0]?.markerYaw, properties[0]?.markerPitch);
 
     setTimeout(() => {
       properties.forEach((property) => {
