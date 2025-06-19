@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import AddProperty from "./pages/AddProperty";
 import LoginPage from "./pages/LoginPage";
 import EditProperty from "./pages/EditProperty";
+import SessionExpiryHandler from "@/components/SessionExpiryHandler";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
     <ThemeProvider defaultTheme="light">
       <TooltipProvider>
         <AuthProvider>
+          <SessionExpiryHandler />
           <Toaster />
           <Sonner />
           <BrowserRouter>

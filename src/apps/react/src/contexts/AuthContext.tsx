@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Agent } from "@/lib/data";
 import { settings } from "@/settings";
-import { tokenGenerationEndpoint, getMeEndpoint, searchAgenciesEndpoint, searchNeighborhoodsEndpoint } from "../api/homemapapi";
+import { tokenGenerationEndpoint, getMeEndpoint, searchAgenciesEndpoint, searchNeighborhoodsEndpoint, NeighborhoodResponse } from "../api/homemapapi";
 
 interface AuthContextType {
   currentAgent: Agent | null;
@@ -41,13 +41,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     checkAuth();
   }, []);
-
-  // useEffect(() => {
-  //   // Only redirect to login if not already on the login page
-  //   if (isAuthenticated === false && window.location.pathname !== "/login") {
-  //     window.location.href = "/login";
-  //   }
-  // }, [isAuthenticated]);
+  // Redirect to login when authentication fails
+  useEffect(() => {
+    // Only redirect to login if:
+    // 1. Authentication check is complete (not undefined)
+    // 2. User is not authenticated
+    // 3. Not already on the login page
+    // 4. Not on a public page
+    const publicPaths = ['/login', '/properties', '/property/', '/neighborhood', '/about', '/services', '/contact'];
+    const isPublicPath = publicPaths.some(path => 
+      path.endsWith('/') ? window.location.pathname.startsWith(path) : window.location.pathname === path
+    );
+    
+    if (isAuthenticated === false && !isPublicPath) {
+      const currentPath = window.location.pathname;
+      window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+    }
+  }, [isAuthenticated]);
 
   // Helper: Check if token is expired
   const isTokenExpired = () => {
@@ -145,10 +155,9 @@ const tokenRes = await tokenGenerationEndpoint(
           "tenant": "root",
         },
       });
-      if (userProfileRes) {
-        // Fetch agency (first result) and all neighborhoods for the agent
+      if (userProfileRes) {        // Fetch agency (first result) and all neighborhoods for the agent
   let agency = null;
-  let neighborhoods: any[] = [];
+  let neighborhoods: NeighborhoodResponse[] = [];
 
   // Search for agencies (assuming you can filter by agent email or id)
   const agenciesRes = await searchAgenciesEndpoint({
@@ -219,6 +228,35 @@ const tokenRes = await tokenGenerationEndpoint(
       console.log("Mock user logged out.");
     }
   };
+
+  // Listen for session expiry events from the API interceptor
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      console.log('Session expired - forcing logout');
+      // Clear local state
+      setCurrentAgent(null);
+      setIsAuthenticated(false);
+      // Don't clear localStorage here - already done by interceptor
+      
+      // Show user-friendly notification
+      // Note: We use setTimeout to ensure the toast system is available
+      setTimeout(() => {
+        // Try to show toast if available
+        try {
+          const event = new CustomEvent('auth:show-session-expired-toast');
+          window.dispatchEvent(event);
+        } catch (error) {
+          console.warn('Could not show session expired notification:', error);
+        }
+      }, 500);
+    };
+
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+    
+    return () => {
+      window.removeEventListener('auth:session-expired', handleSessionExpired);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ currentAgent, isAuthenticated, isLoading, login, logout }}>

@@ -25,8 +25,9 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  // Get the redirect path from location state or default to manage page
-  const from = location.state?.from || "/";
+  // Get the redirect path from URL search params, location state, or default to home
+  const searchParams = new URLSearchParams(location.search);
+  const redirectPath = searchParams.get('redirect') || location.state?.from || "/";
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -48,7 +49,7 @@ const LoginPage = () => {
           title: "התחברת בהצלחה",
           description: "ברוך הבא למערכת ניהול הנדל״ן",
         });
-        navigate(from, { replace: true });
+        navigate(redirectPath, { replace: true });
       } else {
         setLoginError("שם המשתמש או הסיסמה שגויים");
         toast({
