@@ -31,7 +31,7 @@ const AuthTestPanel: React.FC = () => {
     window.location.reload();
   };
 
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.MODE === 'production') {
     return null;
   }
 

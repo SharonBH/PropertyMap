@@ -4,12 +4,21 @@ import Axios, { AxiosError, AxiosRequestConfig } from 'axios';
  export const AXIOS_INSTANCE = Axios.create({ baseURL: settings.baseAPI  }); // use your own URL here or environment variable
   // Flag to prevent multiple redirects
  let isRedirecting = false;
-
  AXIOS_INSTANCE.interceptors.request.use(  (config) => {
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add tenant header dynamically
+    const tenant = localStorage.getItem('currentTenant');
+    if (tenant) {
+      config.headers.tenant = tenant;
+    } else {
+      // Fallback to root tenant if no tenant is set
+      config.headers.tenant = 'root';
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)
@@ -22,12 +31,12 @@ AXIOS_INSTANCE.interceptors.response.use(
     // Check if it's a 401 unauthorized error
     if (error.response?.status === 401 && !isRedirecting) {
       isRedirecting = true;
-      
-      // Clear authentication data
+        // Clear authentication data
       localStorage.removeItem('authToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('refreshTokenExpiryTime');
       localStorage.removeItem('currentAgent');
+      localStorage.removeItem('currentTenant');
       
       // Dispatch custom event to notify AuthContext
       window.dispatchEvent(new CustomEvent('auth:session-expired'));

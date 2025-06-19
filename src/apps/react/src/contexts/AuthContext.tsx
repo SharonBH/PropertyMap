@@ -8,7 +8,7 @@ interface AuthContextType {
   currentAgent: Agent | null;
   isAuthenticated: boolean | undefined;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, tenantId?: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -40,15 +40,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     checkAuth();
-  }, []);
-  // Redirect to login when authentication fails
+  }, []);  // Redirect to login when authentication fails
   useEffect(() => {
     // Only redirect to login if:
     // 1. Authentication check is complete (not undefined)
     // 2. User is not authenticated
     // 3. Not already on the login page
     // 4. Not on a public page
-    const publicPaths = ['/login', '/properties', '/property/', '/neighborhood', '/about', '/services', '/contact'];
+    const publicPaths = ['/login', '/properties', '/property/', '/about', '/services', '/contact'];
     const isPublicPath = publicPaths.some(path => 
       path.endsWith('/') ? window.location.pathname.startsWith(path) : window.location.pathname === path
     );
@@ -124,18 +123,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 60 * 1000); // check every minute
     return () => clearInterval(interval);
   }, [isAuthenticated]);
-
-
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string, tenantId?: string): Promise<boolean> => {
   setIsLoading(true);
 
   try {
+    // Determine tenant - use provided tenantId or default to 'root'
+    const selectedTenant = tenantId || 'root';
+    
+    // Store tenant BEFORE making the login request so it's included in headers
+    localStorage.setItem("currentTenant", selectedTenant);
+    
     // Call the token generation endpoint
-const tokenRes = await tokenGenerationEndpoint(
+    const tokenRes = await tokenGenerationEndpoint(
       { email, password },
       {
         headers: {
-          "tenant": "root", // or use a dynamic value if needed
+          "tenant": selectedTenant,
           "Content-Type": "application/json"
         }
       }
@@ -152,13 +155,12 @@ const tokenRes = await tokenGenerationEndpoint(
         headers: {
           "Authorization": `Bearer ${tokenRes.token}`,
           "Content-Type": "application/json",
-          "tenant": "root",
+          "tenant": selectedTenant,
         },
       });
       if (userProfileRes) {        // Fetch agency (first result) and all neighborhoods for the agent
   let agency = null;
   let neighborhoods: NeighborhoodResponse[] = [];
-
   // Search for agencies (assuming you can filter by agent email or id)
   const agenciesRes = await searchAgenciesEndpoint({
     pageNumber: 1,
@@ -166,6 +168,10 @@ const tokenRes = await tokenGenerationEndpoint(
   });
   if (agenciesRes && agenciesRes.items && agenciesRes.items.length > 0) {
     agency = agenciesRes.items[0];
+    // Tenant was already set earlier in the login process
+  } else {
+    // Keep the selected tenant if no agency found
+    // Tenant was already set earlier in the login process
   }
 
   const neighborhoodsRes = await searchNeighborhoodsEndpoint({
@@ -199,10 +205,10 @@ const tokenRes = await tokenGenerationEndpoint(
           phone: "", 
           image: "", 
           agency: { id: "NA", name: "Unknown Agency" }, // Provide minimal AgencyResponse
-          neighborhoods: [] 
-        };
+          neighborhoods: []        };
         setCurrentAgent(fallbackAgent);
         localStorage.setItem("currentAgent", JSON.stringify(fallbackAgent));
+        // Tenant was already set earlier in the login process
       }
       return true;
     }
@@ -215,8 +221,7 @@ const tokenRes = await tokenGenerationEndpoint(
   } finally {
     setIsLoading(false);
   }
-};
-  const logout = () => {
+};  const logout = () => {
     setCurrentAgent(null);
     setIsAuthenticated(false);
     localStorage.removeItem("currentAgent");
@@ -224,6 +229,8 @@ const tokenRes = await tokenGenerationEndpoint(
     localStorage.removeItem("authToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("refreshTokenExpiryTime");
+    // Clear tenant information
+    localStorage.removeItem("currentTenant");
     if (settings.useMockLogin) {
       console.log("Mock user logged out.");
     }

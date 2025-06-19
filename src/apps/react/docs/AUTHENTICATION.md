@@ -75,10 +75,16 @@ Public routes that don't require authentication:
 - `/login`
 - `/properties`
 - `/property/*`
-- `/neighborhood`
 - `/about`
 - `/services`
 - `/contact`
+
+### Protected Routes
+Protected routes that require authentication:
+- `/` (home/manage listings)
+- `/add-property`
+- `/edit-property/*`
+- `/neighborhood`
 
 ## Security Features
 

@@ -6,12 +6,15 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/useAuth";
 import { useProperties } from "@/hooks/useProperties";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useTenantManagement } from "@/hooks/useTenantManagement";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, currentAgent, logout } = useAuth();
   const { agentNeighborhoods } = useProperties();
+  const { currentAgency, canSwitchTenant, switchTenant } = useTenantManagement();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -29,9 +32,13 @@ const Navbar = () => {
 
   return (
     <nav className="bg-background border-b sticky top-0 z-10">
-      <div className="container flex justify-between items-center h-16 px-4">
-        <Link to="/" className="font-bold text-xl text-foreground">
+      <div className="container flex justify-between items-center h-16 px-4">        <Link to="/" className="font-bold text-xl text-foreground">
           נדל״ן ישראלי
+          {currentAgency && (
+            <Badge variant="outline" className="mr-2 text-xs">
+              {currentAgency.name}
+            </Badge>
+          )}
         </Link>
         
         <div className="flex items-center gap-1 md:gap-2">
@@ -41,19 +48,11 @@ const Navbar = () => {
             label="בית"
             isActive={isActive("/")}
           /> */}
-          
-          <NavItem 
+            <NavItem 
             to="/" 
             icon={<Building className="h-4 w-4" />} 
             label="נכסים"
             isActive={isActive("/")}
-          />
-          
-          <NavItem 
-            to="/neighborhood" 
-            icon={<Map className="h-4 w-4" />} 
-            label="שכונות"
-            isActive={isActivePrefix("/neighborhood")}
           />
           
           <NavItem 
@@ -80,12 +79,17 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <NavItem 
+                to="/neighborhood" 
+                icon={<Map className="h-4 w-4" />} 
+                label="שכונות"
+                isActive={isActivePrefix("/neighborhood")}
+              />
+              <NavItem 
                 to="/" 
                 icon={<User className="h-4 w-4" />} 
                 label={currentAgent?.name || "סוכן"}
                 isActive={isActive("/")}
-              />
-              <Button 
+              />              <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={handleLogout} 
@@ -93,6 +97,16 @@ const Navbar = () => {
               >
                 התנתק
               </Button>
+              {canSwitchTenant() && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={switchTenant}
+                  className="mr-2 text-sm"
+                >
+                  החלף סוכנות
+                </Button>
+              )}
             </>
           ) : (
             <NavItem 
