@@ -1,8 +1,8 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { NeighborhoodResponse } from "@/api/homemapapi";
+import { resolveNeighborhoodUrl } from "@/lib/imageUrl";
 
 interface UseViewerInitializerProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -47,19 +47,9 @@ export function useViewerInitializer({
     }
 
     console.log(`Creating new viewer for ${neighborhood.name}`);
-    
-    const panoramaUrls: Record<string, string> = {
-      n1: "/assets/16.jpg",
-      n2: "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg",
-      n3: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg",
-      n4: "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg",
-      n5: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg",
-      n6: "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg",
-      n7: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg",
-    };
 
-    const panoramaUrl = panoramaUrls[neighborhood.id] || 
-      "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg";
+    const panoramaUrl = resolveNeighborhoodUrl(neighborhood.sphereImgURL) || 
+      "https://localhost:7000/neighborhoods/16.jpg";
 
     try {
       // Create a new viewer with the markers plugin directly in the plugins array
@@ -111,7 +101,7 @@ export function useViewerInitializer({
       }
       setViewerReady(false);
     };
-  }, [containerRef, neighborhood.id, neighborhood.name, onViewerReady]);
+  }, [containerRef, neighborhood.id, neighborhood.name]);
 
   return { viewerReady };
 }

@@ -1,34 +1,46 @@
-
-import { useRef, useCallback, useEffect, useState } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { useViewerInitializer } from "./useViewerInitializer";
-import { useMarkerHandler } from "./useMarkerHandler";
+import { useEnhancedMarkerHandler } from "./useEnhancedMarkerHandler";
 import { NeighborhoodResponse } from "@/api/homemapapi";
 
-interface UseMarkerPositionerProps {
+interface UseEnhancedMarkerPositionerProps {
   containerRef: React.RefObject<HTMLDivElement>;
   neighborhood: NeighborhoodResponse;
   onPositionChange: (position: { yaw: number; pitch: number }) => void;
   initialPosition?: { yaw: number; pitch: number };
 }
 
-export function useMarkerPositioner({
+export function useEnhancedMarkerPositioner({
   containerRef,
   neighborhood,
   onPositionChange,
   initialPosition
-}: UseMarkerPositionerProps) {
+}: UseEnhancedMarkerPositionerProps) {
   const viewer = useRef<Viewer | null>(null);
   const markersPlugin = useRef<MarkersPlugin | null>(null);
   // Track if event handlers have been attached
   const eventHandlersSet = useRef(false);
-    const { hasMarker, handleSphereClick, handleSetMarkerAtCenter, setupInitialMarker } = useMarkerHandler({
+  
+  const { 
+    hasMarker, 
+    positioningMode, 
+    isDragging, 
+    markerPosition,
+    handleSphereClick, 
+    handleSetMarkerAtCenter, 
+    handleDeleteMarker,
+    setupInitialMarker,
+    togglePositioningMode,
+    setIsDragging
+  } = useEnhancedMarkerHandler({
     onPositionChange,
     initialPosition
   });
+
   const handleViewerReady = useCallback((newViewer: Viewer, newMarkersPlugin: MarkersPlugin) => {
-    console.log("Viewer ready callback fired");
+    console.log("Enhanced viewer ready callback fired");
     viewer.current = newViewer;
     markersPlugin.current = newMarkersPlugin;
     
@@ -37,19 +49,16 @@ export function useMarkerPositioner({
     
     // Only set up event handlers once per viewer instance
     if (!eventHandlersSet.current && newViewer && newMarkersPlugin) {
-      console.log("Setting up click event handlers");
-      
-      // Don't add click handlers directly to the viewer, as it interferes with rotation
-      // Instead, we'll rely on the plugin's built-in click event
+      console.log("Setting up enhanced click event handlers");
       
       eventHandlersSet.current = true;
-      console.log("Event handlers set up successfully");
+      console.log("Enhanced event handlers set up successfully");
     }
   }, [setupInitialMarker]);
 
   // Reset eventHandlersSet when neighborhood changes
   useEffect(() => {
-    console.log("Neighborhood changed, resetting event handler flag");
+    console.log("Neighborhood changed, resetting enhanced event handler flag");
     eventHandlersSet.current = false;
   }, [neighborhood.id]);
 
@@ -60,19 +69,25 @@ export function useMarkerPositioner({
     }
     
     if (viewer.current && markersPlugin.current) {
-      console.log("Setting marker at center (wrapper)");
+      console.log("Setting marker at center (enhanced wrapper)");
       handleSetMarkerAtCenter(viewer.current, markersPlugin.current);
     } else {
       console.warn("Viewer or markersPlugin not available");
     }
   }, [handleSetMarkerAtCenter]);
 
+  const handleDeleteMarkerWrapper = useCallback(() => {
+    if (markersPlugin.current) {
+      handleDeleteMarker(markersPlugin.current);
+    }
+  }, [handleDeleteMarker]);
+
   // Add a click handler on the sphere itself
   useEffect(() => {
-    if (viewer.current && markersPlugin.current) {
+    if (viewer.current && markersPlugin.current && positioningMode) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clickHandler = (e: any) => {
-        console.log("Sphere click detected in useEffect", e);
+        console.log("Enhanced sphere click detected", e);
         handleSphereClick(e, markersPlugin.current!);
       };
       
@@ -84,7 +99,23 @@ export function useMarkerPositioner({
         }
       };
     }
-  }, [handleSphereClick]);
+  }, [handleSphereClick, positioningMode]);
+
+  // Change cursor based on positioning mode
+  useEffect(() => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      if (positioningMode) {
+        container.style.cursor = 'crosshair';
+      } else {
+        container.style.cursor = 'grab';
+      }
+      
+      return () => {
+        container.style.cursor = '';
+      };
+    }
+  }, [positioningMode, containerRef]);
 
   const { viewerReady } = useViewerInitializer({
     containerRef,
@@ -95,6 +126,11 @@ export function useMarkerPositioner({
   return {
     viewerReady,
     hasMarker,
-    handleSetMarkerAtCenter: handleSetMarkerAtCenterWrapper
+    positioningMode,
+    isDragging,
+    markerPosition,
+    handleSetMarkerAtCenter: handleSetMarkerAtCenterWrapper,
+    handleDeleteMarker: handleDeleteMarkerWrapper,
+    togglePositioningMode
   };
 }

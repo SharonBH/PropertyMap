@@ -235,13 +235,12 @@ const PropertyFormFields = ({
         name="neighborhoodId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>שכונה</FormLabel>
-            <Select 
+            <FormLabel>שכונה</FormLabel>            <Select 
               onValueChange={(value) => {
                 field.onChange(value);
                 onNeighborhoodChange(value);
               }} 
-              defaultValue={field.value}
+              value={field.value}
             >
               <FormControl>
                 <SelectTrigger>
@@ -267,7 +266,7 @@ const PropertyFormFields = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>סוג נכס</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingTypes}>
+            <Select onValueChange={field.onChange} value={field.value} disabled={loadingTypes}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={loadingTypes ? "טוען סוגי נכסים..." : "בחר סוג נכס"} />
@@ -290,7 +289,7 @@ const PropertyFormFields = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>סטטוס נכס</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingStatuses}>
+            <Select onValueChange={field.onChange} value={field.value} disabled={loadingStatuses}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={loadingStatuses ? "טוען סטטוסים..." : "בחר סטטוס נכס"} />

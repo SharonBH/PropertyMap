@@ -16,7 +16,7 @@ export function getMarkerHtml() {
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         margin-bottom: 4px;
       ">
-        New Property Location
+        מיקום הנכס
       </div>
       <div style="
         width: 2px;

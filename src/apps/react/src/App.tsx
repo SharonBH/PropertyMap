@@ -6,11 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import FallbackIndex from "./pages/FallbackIndex";
+//import FallbackIndex from "./pages/FallbackIndex";
 import PropertyDetails from "./pages/PropertyDetails";
 import Properties from "./pages/Properties";
 import NeighborhoodMap from "./pages/NeighborhoodMap";
-import ManageListings from "./pages/ManageListings";
+import ManageListings from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
 import ServicesPage from "./pages/ServicesPage";
 import ContactPage from "./pages/ContactPage";
@@ -30,7 +30,13 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<FallbackIndex />} />
+              {/* <Route path="/" element={<FallbackIndex />} /> */}
+              <Route path="/" element={
+                  <ProtectedRoute>
+                    <ManageListings />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/properties" element={<Properties />} />
               <Route path="/property/:id" element={<PropertyDetails />} />
               <Route path="/login" element={<LoginPage />} />
@@ -43,14 +49,6 @@ const App = () => (
                 } 
               />
               <Route path="/neighborhood" element={<NeighborhoodMap />} />
-              <Route 
-                path="/manage" 
-                element={
-                  <ProtectedRoute>
-                    <ManageListings />
-                  </ProtectedRoute>
-                } 
-              />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/contact" element={<ContactPage />} />

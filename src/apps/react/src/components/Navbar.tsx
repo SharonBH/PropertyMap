@@ -35,18 +35,18 @@ const Navbar = () => {
         </Link>
         
         <div className="flex items-center gap-1 md:gap-2">
-          <NavItem 
+        {/*   <NavItem 
             to="/" 
             icon={<Home className="h-4 w-4" />} 
             label="בית"
             isActive={isActive("/")}
-          />
+          /> */}
           
           <NavItem 
-            to="/manage" 
+            to="/" 
             icon={<Building className="h-4 w-4" />} 
             label="נכסים"
-            isActive={isActive("/manage")}
+            isActive={isActive("/")}
           />
           
           <NavItem 
@@ -80,10 +80,10 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <NavItem 
-                to="/manage" 
+                to="/" 
                 icon={<User className="h-4 w-4" />} 
                 label={currentAgent?.name || "סוכן"}
-                isActive={isActive("/manage")}
+                isActive={isActive("/")}
               />
               <Button 
                 variant="ghost" 

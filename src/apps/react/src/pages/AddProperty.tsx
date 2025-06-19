@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import MarkerPositioner from "@/components/MarkerPositioner";
 import Navbar from "@/components/Navbar";
 import PropertyFormFields from "@/components/property/PropertyFormFields";
-import { searchPropertyTypesEndpoint, createPropertyEndpoint, searchPropertyStatusesEndpoint, PropertyTypeResponse, PropertyStatusResponse } from "@/api/homemapapi";
+import { searchPropertyTypesEndpoint, createPropertyEndpoint, searchPropertyStatusesEndpoint, PropertyTypeResponse, PropertyStatusResponse, NeighborhoodResponse, getNeighborhoodEndpoint } from "@/api/homemapapi";
 import { resolveImageUrl } from "@/lib/imageUrl";
 import type { PropertyFormSchema } from "@/components/property/PropertyFormFields";
 
@@ -37,14 +37,14 @@ const formSchema = z.object({
 });
 
 const AddProperty = () => {
-  const navigate = useNavigate();
-  const { currentAgent, agentNeighborhoods } = useProperties();
+  const navigate = useNavigate();  const { currentAgent, agentNeighborhoods } = useProperties();
   const { toast } = useToast();
-  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState(agentNeighborhoods[0]);
+  const [selectedNeighborhood, setSelectedNeighborhood] = React.useState<NeighborhoodResponse | null>(null);
   const [propertyTypes, setPropertyTypes] = React.useState<PropertyTypeResponse[]>([]);
   const [loadingTypes, setLoadingTypes] = React.useState(true);
   const [propertyStatuses, setPropertyStatuses] = React.useState<PropertyStatusResponse[]>([]);
   const [loadingStatuses, setLoadingStatuses] = React.useState(true);
+  const [loadingNeighborhood, setLoadingNeighborhood] = React.useState(false);
 
   React.useEffect(() => {
     setLoadingTypes(true);
@@ -54,7 +54,6 @@ const AddProperty = () => {
       })
       .finally(() => setLoadingTypes(false));
   }, []);
-
   React.useEffect(() => {
     setLoadingStatuses(true);
     searchPropertyStatusesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
@@ -82,6 +81,26 @@ const AddProperty = () => {
       images: [],
     },
   });
+
+  // Auto-select first neighborhood when neighborhoods are available
+  React.useEffect(() => {
+    if (agentNeighborhoods.length > 0 && !selectedNeighborhood) {
+      const firstNeighborhood = agentNeighborhoods[0];
+      setLoadingNeighborhood(true);
+      getNeighborhoodEndpoint(firstNeighborhood.id, "1")
+        .then(fullNeighborhood => {
+          setSelectedNeighborhood(fullNeighborhood);
+          form.setValue("neighborhoodId", firstNeighborhood.id);
+          setLoadingNeighborhood(false);
+        })
+        .catch(error => {
+          console.error("Error loading initial neighborhood:", error);
+          setSelectedNeighborhood(firstNeighborhood);
+          form.setValue("neighborhoodId", firstNeighborhood.id);
+          setLoadingNeighborhood(false);
+        });
+    }
+  }, [agentNeighborhoods, selectedNeighborhood, form]);
 
   const onSubmit = async (values: PropertyFormSchema) => {
     const payload = {
@@ -117,11 +136,23 @@ const AddProperty = () => {
       });
     }
   };
-
   const handleNeighborhoodChange = (value: string) => {
     const neighborhood = agentNeighborhoods.find(n => n.id === value);
     if (neighborhood) {
-      setSelectedNeighborhood(neighborhood);
+      setLoadingNeighborhood(true);
+      // Load the full neighborhood data from API to get sphereImgURL
+      getNeighborhoodEndpoint(value, "1")
+        .then(fullNeighborhood => {
+          setSelectedNeighborhood(fullNeighborhood);
+          setLoadingNeighborhood(false);
+        })
+        .catch(error => {
+          console.error("Error loading neighborhood:", error);
+          // Fallback to basic neighborhood data
+          setSelectedNeighborhood(neighborhood);
+          setLoadingNeighborhood(false);
+        });
+      
       // Reset marker position when neighborhood changes
       form.setValue("markerPosition", { yaw: 0, pitch: 0 });
     }
@@ -178,16 +209,25 @@ const AddProperty = () => {
                 {hasMarkerPosition ? "הוסף נכס" : "יש להניח סמן קודם"}
               </Button>
             </form>
-          </Form>
-
-         <div className="rounded-lg overflow-hidden border border-input bg-background">
-            {selectedNeighborhood && (
+          </Form>         <div className="rounded-lg overflow-hidden border border-input bg-background">
+            {loadingNeighborhood ? (
+              <div className="flex items-center justify-center h-96 bg-muted/50">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">טוען תמונת שכונה...</p>
+                </div>
+              </div>
+            ) : selectedNeighborhood ? (
               <MarkerPositioner
                 neighborhood={selectedNeighborhood}
                 onPositionChange={(position) => {
                   form.setValue("markerPosition", position);
                 }}
               />
+            ) : (
+              <div className="flex items-center justify-center h-96 bg-muted/50">
+                <p className="text-sm text-muted-foreground">בחר שכונה כדי להציג את המפה</p>
+              </div>
             )}
           </div>
         </div>
