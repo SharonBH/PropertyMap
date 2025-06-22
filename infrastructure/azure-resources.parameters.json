@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "prod"
+    },
+    "location": {
+      "value": "East US"
+    },
+    "appServicePlanSku": {
+      "value": "S1"
+    },
+    "sqlAdminUsername": {
+      "value": "sqladmin"
+    },
+    "sqlAdminPassword": {
+      "value": "SET_THIS_PASSWORD"
+    },
+    "enableApplicationInsights": {
+      "value": true
+    }
+  }
+}
