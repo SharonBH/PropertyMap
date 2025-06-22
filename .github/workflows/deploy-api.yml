@@ -1,0 +1,182 @@
+name: Deploy API to Azure App Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+  push:
+    branches:
+      - main
+    paths:
+      - "src/api/**"
+      - "src/Directory.Packages.props"
+
+env:
+  DOTNET_VERSION: '9.x'
+  AZURE_WEBAPP_PACKAGE_PATH: './published'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v4
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache .NET packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ./src/api/server/Server.csproj
+
+    - name: Build
+      run: dotnet build ./src/api/server/Server.csproj --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test ./src/api/server/Server.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
+      continue-on-error: true
+
+    - name: Publish
+      run: dotnet publish ./src/api/server/Server.csproj --configuration Release --no-build --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v4
+      with:
+        name: .net-app
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment: 
+      name: 'staging'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: .net-app
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ vars.AZURE_API_APP_NAME_STAGING }}
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE_STAGING }}
+        package: .
+
+    - name: Configure App Settings
+      uses: azure/appservice-settings@v1
+      with:
+        app-name: ${{ vars.AZURE_API_APP_NAME_STAGING }}
+        app-settings-json: |
+          [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "Staging"
+            },
+            {
+              "name": "DatabaseOptions__Provider",
+              "value": "${{ vars.DATABASE_PROVIDER }}"
+            },
+            {
+              "name": "DatabaseOptions__ConnectionString",
+              "value": "${{ secrets.DATABASE_CONNECTION_STRING_STAGING }}"
+            },
+            {
+              "name": "JwtOptions__Key",
+              "value": "${{ secrets.JWT_KEY }}"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "${{ secrets.APPINSIGHTS_CONNECTION_STRING_STAGING }}"
+            }
+          ]
+        connection-strings-json: |
+          [
+            {
+              "name": "DefaultConnection",
+              "value": "${{ secrets.DATABASE_CONNECTION_STRING_STAGING }}",
+              "type": "SQLAzure"
+            }
+          ]
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging]
+    if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: 
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: .net-app
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ vars.AZURE_API_APP_NAME_PRODUCTION }}
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE_PRODUCTION }}
+        package: .
+
+    - name: Configure App Settings
+      uses: azure/appservice-settings@v1
+      with:
+        app-name: ${{ vars.AZURE_API_APP_NAME_PRODUCTION }}
+        app-settings-json: |
+          [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "Production"
+            },
+            {
+              "name": "DatabaseOptions__Provider",
+              "value": "${{ vars.DATABASE_PROVIDER }}"
+            },
+            {
+              "name": "DatabaseOptions__ConnectionString",
+              "value": "${{ secrets.DATABASE_CONNECTION_STRING_PRODUCTION }}"
+            },
+            {
+              "name": "JwtOptions__Key",
+              "value": "${{ secrets.JWT_KEY }}"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "${{ secrets.APPINSIGHTS_CONNECTION_STRING_PRODUCTION }}"
+            }
+          ]
+        connection-strings-json: |
+          [
+            {
+              "name": "DefaultConnection",
+              "value": "${{ secrets.DATABASE_CONNECTION_STRING_PRODUCTION }}",
+              "type": "SQLAzure"
+            }
+          ]
