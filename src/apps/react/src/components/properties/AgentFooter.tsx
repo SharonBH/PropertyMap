@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Agent } from "@/lib/data";
 import { useTenant } from "@/contexts/TenantContext";
 import "./AgentFooter.css";
+import { resolveAgencyUrl, resolveImageUrl } from "@/lib/imageUrl";
 
 interface AgentFooterProps {
   agent?: Agent;
@@ -64,7 +65,7 @@ const AgentFooter: React.FC<AgentFooterProps> = ({ agent }) => {
             {logoURL ? (
               <div className="flex items-center mb-4">
                 <img 
-                  src={logoURL} 
+                  src={resolveImageUrl(logoURL)} 
                   alt={`${agencyName} logo`} 
                   className="h-12 mr-3 bg-white p-1 rounded" 
                 />

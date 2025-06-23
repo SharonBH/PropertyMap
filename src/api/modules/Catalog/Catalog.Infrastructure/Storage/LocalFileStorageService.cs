@@ -16,14 +16,23 @@ public class LocalFileStorageService : IFileStorageService
             Directory.CreateDirectory(_basePath);
     }
 
-    public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken = default)
+    public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, string? subfolder = null, CancellationToken cancellationToken = default)
     {
         var safeFileName = Path.GetRandomFileName() + Path.GetExtension(fileName);
-        var filePath = Path.Combine(_basePath, safeFileName);
+        string targetPath = _basePath;
+        string publicUrlBase = _publicUrlBase;
+        if (!string.IsNullOrWhiteSpace(subfolder))
+        {
+            targetPath = Path.Combine(_basePath, subfolder);
+            publicUrlBase = _publicUrlBase.TrimEnd('/') + "/" + subfolder;
+            if (!Directory.Exists(targetPath))
+                Directory.CreateDirectory(targetPath);
+        }
+        var filePath = Path.Combine(targetPath, safeFileName);
         using (var fs = new FileStream(filePath, FileMode.Create))
         {
             await fileStream.CopyToAsync(fs, cancellationToken);
         }
-        return _publicUrlBase.TrimEnd('/') + "/" + safeFileName;
+        return publicUrlBase.TrimEnd('/') + "/" + safeFileName;
     }
 }

@@ -17,13 +17,18 @@ public class AzureBlobStorageService : IFileStorageService
         _containerClient.CreateIfNotExists();
     }
 
-    public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken = default)
+    public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, string? subfolder = null, CancellationToken cancellationToken = default)
     {
         var safeFileName = Guid.NewGuid() + Path.GetExtension(fileName);
-        var blobClient = _containerClient.GetBlobClient(safeFileName);
+        string blobName = safeFileName;
+        if (!string.IsNullOrWhiteSpace(subfolder))
+        {
+            blobName = subfolder.TrimEnd('/') + "/" + safeFileName;
+        }
+        var blobClient = _containerClient.GetBlobClient(blobName);
         await blobClient.UploadAsync(fileStream, overwrite: true, cancellationToken: cancellationToken);
         return string.IsNullOrEmpty(_publicUrlBase)
             ? blobClient.Uri.ToString()
-            : _publicUrlBase.TrimEnd('/') + "/" + safeFileName;
+            : _publicUrlBase.TrimEnd('/') + "/" + blobName;
     }
 }

@@ -64,12 +64,19 @@ const AgentProfile = () => {
     }
   }, [currentAgent, form]);
 
+  const allowedExtensions = ['.jpeg', '.jpg', '.png'];
+
   // Handle file selection
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
+      const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+      if (!allowedExtensions.includes(ext)) {
+        setError('רק קבצי תמונה מסוג JPG, JPEG או PNG נתמכים');
+        return;
+      }
       setSelectedImage(file);
-      
+      setError(null);
       // Create a preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -77,6 +84,32 @@ const AgentProfile = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // Convert image file to base64 with correct MIME type and prefix
+  const fileToBase64WithPrefix = (file: File, ext: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0);
+          let mimeType = 'image/jpeg';
+          if (ext === '.png') mimeType = 'image/png';
+          // Export as original type
+          const dataUrl = canvas.toDataURL(mimeType, 0.92);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   // Remove selected image
@@ -91,6 +124,7 @@ const AgentProfile = () => {
 
     try {
       const updateData: UpdateUserCommand = {
+        id: currentAgent?.id || undefined,
         firstName: data.firstName,
         lastName: data.lastName,
         phoneNumber: data.phoneNumber || null,
@@ -98,20 +132,21 @@ const AgentProfile = () => {
         deleteCurrentImage: previewUrl === null && currentAgent?.image ? true : false
       };
 
-      // If a new image was selected, add it to the update command
+      // Only send image if a new image is selected
       if (selectedImage) {
+        const ext = '.' + selectedImage.name.split('.').pop()?.toLowerCase();
+        const base64WithPrefix = await fileToBase64WithPrefix(selectedImage, ext);
         updateData.image = {
           name: selectedImage.name,
-          extension: selectedImage.name.split('.').pop() || '',
-          data: await fileToBase64(selectedImage)
+          extension: ext,
+          data: base64WithPrefix // includes prefix
         };
       }
 
       // Send update request
       await updateUserEndpoint(updateData);
-        // Refresh agent info
+      // Refresh agent info
       await refreshCurrentAgent();
-      
       toast({
         title: "הפרופיל עודכן",
         description: "פרטי הפרופיל שלך עודכנו בהצלחה.",
@@ -122,21 +157,6 @@ const AgentProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Convert file to base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        let base64 = reader.result as string;
-        // Remove the data:image/xxx;base64, part
-        base64 = base64.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = error => reject(error);
-    });
   };
 
   // Get initials for avatar fallback

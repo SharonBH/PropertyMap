@@ -100,7 +100,10 @@ public static class CatalogModule
                 if (file == null || file.Length == 0)
                     return Results.BadRequest("No file uploaded");
 
-                var url = await fileStorageService.UploadAsync(file.OpenReadStream(), file.FileName, file.ContentType, cancellationToken);
+                // Get subfolder from form if provided
+                var subfolder = form.TryGetValue("subfolder", out var subfolderValue) ? subfolderValue.ToString() : null;
+
+                var url = await fileStorageService.UploadAsync(file.OpenReadStream(), file.FileName, file.ContentType, subfolder, cancellationToken);
                 return Results.Ok(new { url });
             })
             .WithName("FileUpload")

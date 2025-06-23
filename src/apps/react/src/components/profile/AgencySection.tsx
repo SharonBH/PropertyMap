@@ -103,7 +103,7 @@ const AgencySection: React.FC<AgencySectionProps> = ({ agency, className }) => {
       
       const formData = new FormData();
       formData.append("file", file);
-      
+      formData.append("subfolder", "agencies");
       // Upload the file
       const response = await fileUpload("1", { data: formData }) as unknown as { url?: string };
       
@@ -141,9 +141,11 @@ const AgencySection: React.FC<AgencySectionProps> = ({ agency, className }) => {
       if (!validateForm()) {
         setIsLoading(false);
         return;
-      }      if (!agency?.id) {
+      }
+      if (!agency?.id) {
         throw new Error("מזהה סוכנות לא נמצא");
-      }      // Prepare the request data with proper ID and null handling
+      }
+      // Always use the latest logoURL from state (after upload)
       const requestData = {
         id: agency.id,
         name: formData.name,
@@ -151,10 +153,9 @@ const AgencySection: React.FC<AgencySectionProps> = ({ agency, className }) => {
         telephone: formData.telephone || null,
         address: formData.address || null,
         description: formData.description || null,
-        logoURL: formData.logoURL || null,
+        logoURL: formData.logoURL || null, // This will include the subfolder if uploaded
         primaryColor: formData.primaryColor || null
       };
-      
       const updatedAgency = await updateAgencyEndpoint(
         agency.id,
         requestData,
