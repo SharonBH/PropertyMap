@@ -7,10 +7,11 @@ import PropertyCard from "@/components/PropertyCard";
 import NeighborhoodHeader from "@/components/neighborhood/NeighborhoodHeader";
 import NeighborhoodViewer from "@/components/neighborhood/NeighborhoodViewer";
 import { mapNeighborhood, mapProperty } from "@/lib/apiMappers";
+import AgentFooter from "@/components/properties/AgentFooter";
 
 const NeighborhoodView = () => {
   const { id } = useParams<{ id: string }>();
-  const { agentNeighborhoods, filteredProperties } = useProperties();
+  const { agentNeighborhoods, filteredProperties, currentAgent } = useProperties();
   // Map all neighborhoods to UI model
   const mappedNeighborhoods = agentNeighborhoods.map(mapNeighborhood);
   // Helper to get mapped neighborhood by id
@@ -65,9 +66,8 @@ const NeighborhoodView = () => {
             >
               <PropertyCard property={property} />
             </div>
-          ))}
-        </div>
-      </main>
+          ))}        </div>      </main>
+      <AgentFooter agent={currentAgent} />
     </div>
   );
 };

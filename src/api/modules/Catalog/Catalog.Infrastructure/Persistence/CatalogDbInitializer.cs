@@ -28,7 +28,7 @@ internal sealed class CatalogDbInitializer(
         const string PrimaryColor = "Blue";
         const string additionalInfo = "אין מידע נוסף כרגע";
 
-        if (await context.Agencies.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
+        if (await context.Agencies.FirstOrDefaultAsync(t => t.Email == Email, cancellationToken).ConfigureAwait(false) is null)
         {
             var agency = Agency.Create(Name, Email, Telephone, Address, Description, LogoURL, PrimaryColor, additionalInfo);
             await context.Agencies.AddAsync(agency, cancellationToken);

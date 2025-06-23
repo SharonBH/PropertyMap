@@ -31,10 +31,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-background border-b sticky top-0 z-10">
-      <div className="container flex justify-between items-center h-16 px-4">        
+    <nav className="bg-background border-b sticky top-0 z-10">      <div className="container flex justify-between items-center h-16 px-4">        
         <Link to="/" className="font-bold text-xl text-foreground">
-              {currentAgency.name}
+              {currentAgency?.name || "נדל״ן ישראלי"}
         </Link>
         
         <div className="flex gap-1 md:gap-2">
@@ -79,12 +78,11 @@ const Navbar = () => {
                 icon={<Map className="h-4 w-4" />} 
                 label="שכונות"
                 isActive={isActivePrefix("/neighborhood")}
-              />
-              <NavItem 
-                to="/" 
+              />              <NavItem 
+                to="/profile" 
                 icon={<User className="h-4 w-4" />} 
-                label={currentAgent?.name || "סוכן"}
-                isActive={isActive("/")}
+                label={currentAgent?.name || "פרופיל"}
+                isActive={isActive("/profile")}
               />              <Button 
                 variant="ghost" 
                 size="sm" 

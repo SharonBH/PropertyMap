@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/imageUrl";
+import AgentFooter from "@/components/properties/AgentFooter";
 
 const getMainImage = (images: { imageUrl?: string | null; isMain?: boolean }[] | null | undefined) => {
   if (!images || images.length === 0) return '/placeholder-image.jpg';
@@ -246,31 +247,8 @@ const PropertyDetails = () => {
             
             <ContactForm property={property} agent={agent} />
           </div>
-        </div>
-      </main>
-      
-      <footer className="bg-estate-blue text-white py-8">
-        <div className="container px-4">
-          <div className="flex flex-col md:flex-row justify-between">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-xl font-bold mb-4">נדל״ן ישראלי</h3>
-              <p className="max-w-md text-white/80">
-                הפלטפורמה המובילה למציאת נכסים איכותיים בכל רחבי הארץ
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-bold mb-4">צור קשר</h4>
-              <p className="text-white/80">info@realestate.co.il</p>
-              <p className="text-white/80">03-1234567</p>
-            </div>
-          </div>
-          
-          <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
-            © {new Date().getFullYear()} נדל״ן ישראלי. כל הזכויות שמורות.
-          </div>
-        </div>
-      </footer>
+        </div>      </main>
+      <AgentFooter agent={currentAgent} />
     </div>
   );
 };

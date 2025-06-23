@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import AddProperty from "./pages/AddProperty";
 import LoginPage from "./pages/LoginPageIntegratedTenant";
 import EditProperty from "./pages/EditProperty";
+import AgentProfile from "./pages/AgentProfile";
 import SessionExpiryHandler from "@/components/SessionExpiryHandler";
 
 const queryClient = new QueryClient();
@@ -60,12 +61,19 @@ const App = () => (
                 />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/services" element={<ServicesPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route 
+                <Route path="/contact" element={<ContactPage />} />                <Route 
                   path="/edit-property/:id" 
                   element={
                     <ProtectedRoute>
                       <EditProperty />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <AgentProfile />
                     </ProtectedRoute>
                   }
                 />

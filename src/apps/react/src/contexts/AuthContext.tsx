@@ -1,19 +1,10 @@
 // File: apps/react/src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Agent } from "@/lib/data";
 import { settings } from "@/settings";
 import { tokenGenerationEndpoint, getMeEndpoint, searchAgenciesEndpoint, searchNeighborhoodsEndpoint, NeighborhoodResponse } from "../api/homemapapi";
-
-interface AuthContextType {
-  currentAgent: Agent | null;
-  isAuthenticated: boolean | undefined;
-  isLoading: boolean;
-  login: (email: string, password: string, tenantId?: string) => Promise<boolean>;
-  logout: () => void;
-}
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext, AuthContextType } from "./AuthContextTypes";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -302,9 +293,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, navigate, 
       window.removeEventListener('auth:session-expired', handleSessionExpired);
     };
   }, []);
+  // Function to refresh agent data from API
+  const refreshCurrentAgent = async (): Promise<void> => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+      
+      // Get current tenant ID
+      const tenantId = localStorage.getItem("currentTenant");
+      
+      // Fetch updated user profile
+      const userProfileRes = await getMeEndpoint({
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "tenant": tenantId || "",
+        },
+      });
+      
+      if (userProfileRes) {
+        // Keep existing agency and neighborhoods data if available
+        const existingAgency = currentAgent?.agency;
+        const existingNeighborhoods = currentAgent?.neighborhoods || [];
+        
+        // Map userProfile to Agent type
+        const agentFromProfile: Agent = {
+          id: userProfileRes.id || currentAgent?.id || "",
+          name: userProfileRes.firstName && userProfileRes.lastName
+            ? `${userProfileRes.firstName} ${userProfileRes.lastName}`
+            : userProfileRes.userName || currentAgent?.name || "",
+          email: userProfileRes.email || currentAgent?.email || "",
+          phone: userProfileRes.phoneNumber || currentAgent?.phone || "",
+          image: userProfileRes.imageUrl || currentAgent?.image || "",
+          agency: existingAgency,
+          neighborhoods: existingNeighborhoods,
+        };
+        
+        setCurrentAgent(agentFromProfile);
+        localStorage.setItem("currentAgent", JSON.stringify(agentFromProfile));
+      }
+    } catch (error) {
+      console.error("Error refreshing agent data:", error);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ currentAgent, isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ currentAgent, isAuthenticated, isLoading, login, logout, refreshCurrentAgent }}>
       {children}
     </AuthContext.Provider>
   );

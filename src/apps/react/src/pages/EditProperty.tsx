@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import MarkerPositioner from "@/components/MarkerPositioner";
 import Navbar from "@/components/Navbar";
 import PropertyFormFields from "@/components/property/PropertyFormFields";
+import AgentFooter from "@/components/properties/AgentFooter";
 import { searchPropertyTypesEndpoint, updatePropertyEndpoint, getPropertyEndpoint, PropertyTypeResponse, searchPropertyStatusesEndpoint, PropertyStatusResponse, NeighborhoodResponse, getNeighborhoodEndpoint } from "@/api/homemapapi";
 import { resolveImageUrl } from "@/lib/imageUrl";
 import type { PropertyFormSchema } from "@/components/property/PropertyFormFields";
@@ -212,9 +213,9 @@ const EditProperty = () => {
                 }}
               />
             )}
-          </div>
-        </div>
+          </div>        </div>
       </main>
+      <AgentFooter agent={currentAgent} />
     </div>
   );
 };

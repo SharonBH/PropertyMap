@@ -1,0 +1,20 @@
+.agent-footer {
+  background-color: var(--agency-color, var(--estate-blue));
+  color: white;
+  padding: 2rem 0;
+  margin-top: auto;
+}
+
+.agent-footer-content {
+  width: 100%;
+  padding: 0 1rem;
+  margin: 0 auto;
+}
+
+.agency-logo {
+  height: 3rem;
+  margin-right: 0.75rem;
+  background-color: white;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+}
