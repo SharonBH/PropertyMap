@@ -30,26 +30,32 @@ AXIOS_INSTANCE.interceptors.response.use(
   (error: AxiosError) => {
     // Check if it's a 401 unauthorized error
     if (error.response?.status === 401 && !isRedirecting) {
-      isRedirecting = true;
+      // Skip redirect and localStorage clearing for login-related requests
+      const isLoginRequest = error.config?.url?.includes('/token');
+      const isOnLoginPage = window.location.pathname === '/login';
+
+      if (!isLoginRequest && !isOnLoginPage) {
+        isRedirecting = true;
         // Clear authentication data
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('refreshTokenExpiryTime');
-      localStorage.removeItem('currentAgent');
-      localStorage.removeItem('currentTenant');
-      
-      // Dispatch custom event to notify AuthContext
-      window.dispatchEvent(new CustomEvent('auth:session-expired'));
-      
-      // Redirect to login with current location
-      const currentPath = window.location.pathname;
-      const loginUrl = `/login${currentPath !== '/login' ? `?redirect=${encodeURIComponent(currentPath)}` : ''}`;
-      
-      // Use setTimeout to avoid redirect during React render cycle
-      setTimeout(() => {
-        window.location.href = loginUrl;
-        isRedirecting = false;
-      }, 100);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('refreshTokenExpiryTime');
+        localStorage.removeItem('currentAgent');
+        localStorage.removeItem('currentTenant');
+        
+        // Dispatch custom event to notify AuthContext
+        window.dispatchEvent(new CustomEvent('auth:session-expired'));
+        
+        // Redirect to login with current location
+        const currentPath = window.location.pathname;
+        const loginUrl = `/login${currentPath !== '/login' ? `?redirect=${encodeURIComponent(currentPath)}` : ''}`;
+        
+        // Use setTimeout to avoid redirect during React render cycle
+        setTimeout(() => {
+          window.location.href = loginUrl;
+          isRedirecting = false;
+        }, 100);
+      }
     }
     
     // Handle network errors or server unavailable

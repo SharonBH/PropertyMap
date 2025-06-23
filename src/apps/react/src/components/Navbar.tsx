@@ -32,22 +32,18 @@ const Navbar = () => {
 
   return (
     <nav className="bg-background border-b sticky top-0 z-10">
-      <div className="container flex justify-between items-center h-16 px-4">        <Link to="/" className="font-bold text-xl text-foreground">
-          נדל״ן ישראלי
-          {currentAgency && (
-            <Badge variant="outline" className="mr-2 text-xs">
+      <div className="container flex justify-between items-center h-16 px-4">        
+        <Link to="/" className="font-bold text-xl text-foreground">
               {currentAgency.name}
-            </Badge>
-          )}
         </Link>
         
-        <div className="flex items-center gap-1 md:gap-2">
+        <div className="flex gap-1 md:gap-2">
         {/*   <NavItem 
             to="/" 
             icon={<Home className="h-4 w-4" />} 
             label="בית"
             isActive={isActive("/")}
-          /> */}
+          /> 
             <NavItem 
             to="/" 
             icon={<Building className="h-4 w-4" />} 
@@ -75,7 +71,7 @@ const Navbar = () => {
             label="צור קשר"
             isActive={isActive("/contact")}
           />
-          
+          */}
           {isAuthenticated ? (
             <>
               <NavItem 
@@ -97,7 +93,7 @@ const Navbar = () => {
               >
                 התנתק
               </Button>
-              {canSwitchTenant() && (
+             {/*  {canSwitchTenant() && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -106,7 +102,7 @@ const Navbar = () => {
                 >
                   החלף סוכנות
                 </Button>
-              )}
+              )} */}
             </>
           ) : (
             <NavItem 
@@ -117,9 +113,9 @@ const Navbar = () => {
             />
           )}
           
-          <div className="ml-2">
+         {/*  <div className="ml-2">
             <ThemeToggle />
-          </div>
+          </div> */}
         </div>
       </div>
     </nav>
