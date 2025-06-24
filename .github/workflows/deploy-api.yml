@@ -86,41 +86,6 @@ jobs:
         publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE_STAGING }}
         package: .
 
-    - name: Configure App Settings
-      uses: azure/appservice-settings@v1
-      with:
-        app-name: ${{ vars.AZURE_API_APP_NAME_STAGING }}
-        app-settings-json: |
-          [
-            {
-              "name": "ASPNETCORE_ENVIRONMENT",
-              "value": "Staging"
-            },
-            {
-              "name": "DatabaseOptions__Provider",
-              "value": "${{ vars.DATABASE_PROVIDER }}"
-            },
-            {
-              "name": "DatabaseOptions__ConnectionString",
-              "value": "${{ secrets.DATABASE_CONNECTION_STRING_STAGING }}"
-            },
-            {
-              "name": "JwtOptions__Key",
-              "value": "${{ secrets.JWT_KEY }}"
-            },
-            {
-              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "${{ secrets.APPINSIGHTS_CONNECTION_STRING_STAGING }}"
-            }
-          ]
-        connection-strings-json: |
-          [
-            {
-              "name": "DefaultConnection",
-              "value": "${{ secrets.DATABASE_CONNECTION_STRING_STAGING }}",
-              "type": "SQLAzure"
-            }
-          ]
 
   deploy-production:
     runs-on: ubuntu-latest
