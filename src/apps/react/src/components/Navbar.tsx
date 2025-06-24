@@ -78,12 +78,20 @@ const Navbar = () => {
                 icon={<Map className="h-4 w-4" />} 
                 label="שכונות"
                 isActive={isActivePrefix("/neighborhood")}
-              />              <NavItem 
+              />              
+              <NavItem 
+                to="/" 
+                icon={<Home className="h-4 w-4" />} 
+                label="נכסים"
+                isActive={isActive("/")}
+              />
+               <NavItem 
                 to="/profile" 
                 icon={<User className="h-4 w-4" />} 
                 label={currentAgent?.name || "פרופיל"}
                 isActive={isActive("/profile")}
-              />              <Button 
+              />              
+              <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={handleLogout} 

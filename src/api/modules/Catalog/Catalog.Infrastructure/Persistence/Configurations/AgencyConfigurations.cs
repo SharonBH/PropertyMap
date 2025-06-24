@@ -17,7 +17,7 @@ internal sealed class AgencyConfiguration : IEntityTypeConfiguration<Agency>
         builder.Property(x => x.Telephone).HasMaxLength(50);
         builder.Property(x => x.LogoURL).HasMaxLength(300);
         builder.Property(x => x.PrimaryColor).HasMaxLength(50);
-        builder.Property(x => x.AdditionalInfo).HasColumnType("text");
+        builder.Property(x => x.AdditionalInfo).HasColumnType("text").IsRequired(false);
         builder.HasIndex(x => x.Name).IsUnique();
         builder.HasIndex(x => x.Email).IsUnique();
     }

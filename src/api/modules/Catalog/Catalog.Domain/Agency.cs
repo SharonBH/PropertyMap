@@ -12,11 +12,11 @@ public class Agency : AuditableEntity, IAggregateRoot
     public string Description { get; private set; } = string.Empty;
     public string LogoURL { get; private set; } = string.Empty;
     public string PrimaryColor { get; private set; } = string.Empty;
-    public string AdditionalInfo { get; private set; } = string.Empty;
+    public string? AdditionalInfo { get; private set; }
 
     private Agency() { }
 
-    private Agency(Guid id, string name, string email, string telephone, string address, string description, string logoURL, string primaryColor, string additionalInfo)
+    private Agency(Guid id, string name, string email, string telephone, string address, string description, string logoURL, string primaryColor, string? additionalInfo)
     {
         Id = id;
         Name = name;
@@ -30,7 +30,7 @@ public class Agency : AuditableEntity, IAggregateRoot
         QueueDomainEvent(new AgencyCreated { Agency = this });
     }
 
-    public static Agency Create(string name, string email, string telephone, string address, string description, string logoURL, string primaryColor, string additionalInfo)
+    public static Agency Create(string name, string email, string telephone, string address, string description, string logoURL, string primaryColor, string? additionalInfo)
     {
         return new Agency(Guid.NewGuid(), name, email, telephone, address, description, logoURL, primaryColor, additionalInfo);
     }
@@ -81,7 +81,8 @@ public class Agency : AuditableEntity, IAggregateRoot
             isUpdated = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(additionalInfo) && !string.Equals(AdditionalInfo, additionalInfo, StringComparison.OrdinalIgnoreCase))
+        // Special handling for additionalInfo: allow null or empty string
+        if (additionalInfo != AdditionalInfo) // Compare directly, allow null assignment
         {
             AdditionalInfo = additionalInfo;
             isUpdated = true;

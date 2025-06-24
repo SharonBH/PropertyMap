@@ -10,4 +10,4 @@ public sealed record CreateAgencyCommand(
     string Description,
     string LogoURL,
     string PrimaryColor,
-    string AdditionalInfo) : IRequest<CreateAgencyResponse>;
+    string? AdditionalInfo) : IRequest<CreateAgencyResponse>;
