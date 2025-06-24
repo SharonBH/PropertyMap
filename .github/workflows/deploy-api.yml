@@ -144,39 +144,3 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE_PRODUCTION }}
         package: .
-
-    - name: Configure App Settings
-      uses: azure/appservice-settings@v1
-      with:
-        app-name: ${{ vars.AZURE_API_APP_NAME_PRODUCTION }}
-        app-settings-json: |
-          [
-            {
-              "name": "ASPNETCORE_ENVIRONMENT",
-              "value": "Production"
-            },
-            {
-              "name": "DatabaseOptions__Provider",
-              "value": "${{ vars.DATABASE_PROVIDER }}"
-            },
-            {
-              "name": "DatabaseOptions__ConnectionString",
-              "value": "${{ secrets.DATABASE_CONNECTION_STRING_PRODUCTION }}"
-            },
-            {
-              "name": "JwtOptions__Key",
-              "value": "${{ secrets.JWT_KEY }}"
-            },
-            {
-              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "${{ secrets.APPINSIGHTS_CONNECTION_STRING_PRODUCTION }}"
-            }
-          ]
-        connection-strings-json: |
-          [
-            {
-              "name": "DefaultConnection",
-              "value": "${{ secrets.DATABASE_CONNECTION_STRING_PRODUCTION }}",
-              "type": "SQLAzure"
-            }
-          ]

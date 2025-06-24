@@ -10,7 +10,7 @@ export function resolveImageUrl(url?: string | null): string {
   const base = settings.baseAPI.replace(/\/$/, "");
   // Remove leading slash from url if present
   const rel = url.replace(/^\//, "");
-  return `${base}/${rel}`;
+  return `${base}/assets/${rel}`;
 }
 
 export function resolveNeighborhoodUrl(url?: string | null): string {
@@ -21,7 +21,7 @@ export function resolveNeighborhoodUrl(url?: string | null): string {
   const base = settings.baseAPI.replace(/\/$/, "");
   // Remove leading slash from url if present
   const rel = url.replace(/^\//, "");
-  return `${base}/neighborhoods/${rel}`;
+  return `${base}/assets/neighborhoods/${rel}`;
 }
 
 export function resolveAgencyUrl(url?: string | null): string {
@@ -32,7 +32,7 @@ export function resolveAgencyUrl(url?: string | null): string {
   const base = settings.baseAPI.replace(/\/$/, "");
   // Remove leading slash from url if present
   const rel = url.replace(/^\//, "");
-  return `${base}/agencies/${rel}`;
+  return `${base}/assets/agencies/${rel}`;
 }
 
 export function resolveAgentsUrl(url?: string | null): string {

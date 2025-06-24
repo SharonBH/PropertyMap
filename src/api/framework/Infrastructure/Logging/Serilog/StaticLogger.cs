@@ -13,6 +13,10 @@ public static class StaticLogger
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.OpenTelemetry()
+                .WriteTo.File(
+                    path: "Logs/log-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
         }
     }

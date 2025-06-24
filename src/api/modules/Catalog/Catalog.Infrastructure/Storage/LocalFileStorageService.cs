@@ -10,7 +10,7 @@ public class LocalFileStorageService : IFileStorageService
     public LocalFileStorageService(IConfiguration config)
     {
         // Save files to wwwroot/uploads by default, so they are served as static files
-        _basePath = config["LocalStorage:Path"] ?? Path.Combine("wwwroot", "uploads");
+        _basePath = config["LocalStorage:Path"] ?? Path.Combine("assets", "uploads");
         _publicUrlBase = config["LocalStorage:PublicUrlBase"] ?? "/uploads/";
         if (!Directory.Exists(_basePath))
             Directory.CreateDirectory(_basePath);
