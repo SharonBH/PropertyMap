@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { NeighborhoodResponse } from "@/api/homemapapi";
-import { resolveNeighborhoodUrl } from "@/lib/imageUrl";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
 interface UseViewerInitializerProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -48,7 +48,7 @@ export function useViewerInitializer({
 
     console.log(`Creating new viewer for ${neighborhood.name}`);
 
-    const panoramaUrl = resolveNeighborhoodUrl(neighborhood.sphereImgURL) || 
+    const panoramaUrl = resolveImageUrl(neighborhood.sphereImgURL) || 
       "https://localhost:7000/neighborhoods/16.jpg";
 
     try {

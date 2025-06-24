@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Agent } from "@/lib/data";
 import { useTenant } from "@/contexts/TenantContext";
 import "./AgentFooter.css";
-import { resolveAgencyUrl, resolveImageUrl } from "@/lib/imageUrl";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
 interface AgentFooterProps {
   agent?: Agent;
