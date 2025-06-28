@@ -463,3 +463,4 @@ src/api/server/appsettings.Development.json
 
 wwwroot/
 src/apps/react/server-api.json
+/src/api/server/assets/uploads
