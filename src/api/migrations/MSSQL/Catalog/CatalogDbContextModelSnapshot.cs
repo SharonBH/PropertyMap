@@ -30,7 +30,6 @@ namespace FSH.Starter.WebApi.Migrations.MSSQL.Catalog
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AdditionalInfo")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Address")

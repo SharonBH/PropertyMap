@@ -116,6 +116,7 @@ const EditProperty = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema> & { images: { url: string; isMain: boolean }[] }) => {
     const payload = {
+      id: id!,
       name: values.title,
       description: values.description,
       neighborhoodId: values.neighborhoodId,
@@ -130,7 +131,7 @@ const EditProperty = () => {
       featureList: values.featureList,
       markerYaw: values.markerPosition.yaw,
       markerPitch: values.markerPosition.pitch,
-      images: values.images?.map(img => ({ imageUrl: resolveImageUrl(img.url), isMain: img.isMain })) ?? [],
+      images: values.images?.map(img => ({ imageUrl: img.url, isMain: img.isMain })) ?? [],
     };
     try {
       await updatePropertyEndpoint(id!, payload, "1");

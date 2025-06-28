@@ -19,6 +19,7 @@ internal sealed class CatalogDbInitializer(
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
+        var id = Guid.Parse("662247D4-3A11-4FA3-8E01-A54452D3AD4C");
         const string Name = "נדלן ישראל";
         const string Description = "נדלן ישראל";
         const string Email = "test@agency1.com";
@@ -28,7 +29,7 @@ internal sealed class CatalogDbInitializer(
         const string PrimaryColor = "Blue";
         const string additionalInfo = "אין מידע נוסף כרגע";
 
-        if (await context.Agencies.FirstOrDefaultAsync(t => t.Email == Email, cancellationToken).ConfigureAwait(false) is null)
+        if (await context.Agencies.FirstOrDefaultAsync(t => t.Id == id, cancellationToken).ConfigureAwait(false) is null)
         {
             var agency = Agency.Create(Name, Email, Telephone, Address, Description, LogoURL, PrimaryColor, additionalInfo);
             await context.Agencies.AddAsync(agency, cancellationToken);
