@@ -8,7 +8,7 @@ internal sealed class PropertyStatusConfiguration : IEntityTypeConfiguration<Pro
 {
     public void Configure(EntityTypeBuilder<PropertyStatus> builder)
     {
-        builder.IsMultiTenant();
+        //builder.IsMultiTenant();
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(1000);

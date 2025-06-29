@@ -1,2 +1,2 @@
 PS C:\github\dotnet-starter-org\src\api\server> 
-dotnet ef migrations add "Add PropertyStatus" --project .././migrations/mssql/ --context CatalogDbContext -o Catalog
+dotnet ef migrations add "removed Tenant from all lookups" --project .././migrations/mssql/ --context CatalogDbContext -o Catalog

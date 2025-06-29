@@ -63,11 +63,11 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
 
     const getMarkerColor = (status: string) => {
       switch (status.toLowerCase()) {
-        case 'active':
+        case 'פעיל':
           return '#2DC7FF';
-        case 'pending':
+        case 'ממתין':
           return '#F4D06F';
-        case 'sold':
+        case 'נמכר':
           return '#ea384c';
         default:
           return '#2DC7FF';
@@ -165,7 +165,7 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
       <div ref={viewerContainer} className="w-full h-full"></div>
       
       {selectedProperty && (
-        <div className="absolute bottom-4 right-4 w-full max-w-md">
+        <div className="absolute bottom-4 right-4 w-full max-w-md z-50">
           <Card className="border shadow-lg">
             <CardContent className="p-0">
               <div className="relative">

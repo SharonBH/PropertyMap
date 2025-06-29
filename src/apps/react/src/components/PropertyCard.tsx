@@ -38,7 +38,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   return (
     <div 
       className={cn(
-        "property-card bg-white rounded-lg overflow-hidden border border-gray-100",
+        "property-card bg-white rounded-lg overflow-hidden border border-gray-100 z-50",
         isHighlighted ? "ring-2 ring-estate-blue shadow-md" : "hover:shadow-md"
       )}
     >

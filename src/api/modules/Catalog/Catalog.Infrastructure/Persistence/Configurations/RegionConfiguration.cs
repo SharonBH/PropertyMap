@@ -8,10 +8,11 @@ internal sealed class RegionConfiguration : IEntityTypeConfiguration<Region>
 {
     public void Configure(EntityTypeBuilder<Region> builder)
     {
-        builder.IsMultiTenant();
+        //builder.IsMultiTenant();
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(1000);
         builder.HasIndex(x => x.Name).IsUnique();
+        //builder.HasIndex("TenantId", nameof(Region.Name)).IsUnique();
     }
 }
