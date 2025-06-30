@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
-import PropertyStatusesTable, { PropertyStatusesTableRef } from '@/components/admin/PropertyStatusesTable';
-import PropertyTypesTable, { PropertyTypesTableRef } from '@/components/admin/PropertyTypesTable';
-import RegionsTable, { RegionsTableRef } from '@/components/admin/RegionsTable';
-import CitiesTable, { CitiesTableRef } from '@/components/admin/CitiesTable';
+import PropertyStatusesTable from '@/components/admin/PropertyStatusesTable';
+import PropertyTypesTable from '@/components/admin/PropertyTypesTable';
+import RegionsTable from '@/components/admin/RegionsTable';
+import CitiesTable from '@/components/admin/CitiesTable';
 import DeleteConfirmationDialog from '@/components/admin/DeleteConfirmationDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -28,11 +28,6 @@ import { useToast } from '@/hooks/use-toast';
 const LookupsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-    // Refs for table components to trigger refresh
-  const statusTableRef = useRef<PropertyStatusesTableRef>(null);
-  const typesTableRef = useRef<PropertyTypesTableRef>(null);
-  const regionsTableRef = useRef<RegionsTableRef>(null);
-  const citiesTableRef = useRef<CitiesTableRef>(null);
   
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -44,6 +39,7 @@ const LookupsPage = () => {
     setDeleteType(type);
     setDeleteDialogOpen(true);
   };
+
   const executeDelete = async () => {
     if (!selectedItem?.id) return;
 
@@ -51,7 +47,6 @@ const LookupsPage = () => {
       switch (deleteType) {
         case 'status':
           await deletePropertyStatusEndpoint(selectedItem.id, '1');
-          statusTableRef.current?.refresh();
           toast({
             title: 'הצלחה',
             description: 'סטטוס הנכס נמחק בהצלחה',
@@ -59,7 +54,6 @@ const LookupsPage = () => {
           break;
         case 'type':
           await deletePropertyTypeEndpoint(selectedItem.id, '1');
-          typesTableRef.current?.refresh();
           toast({
             title: 'הצלחה',
             description: 'סוג הנכס נמחק בהצלחה',
@@ -67,7 +61,6 @@ const LookupsPage = () => {
           break;
         case 'region':
           await deleteRegionEndpoint(selectedItem.id, '1');
-          regionsTableRef.current?.refresh();
           toast({
             title: 'הצלחה',
             description: 'האזור נמחק בהצלחה',
@@ -75,7 +68,6 @@ const LookupsPage = () => {
           break;
         case 'city':
           await deleteCityEndpoint(selectedItem.id, '1');
-          citiesTableRef.current?.refresh();
           toast({
             title: 'הצלחה',
             description: 'העיר נמחקה בהצלחה',
@@ -111,7 +103,7 @@ const LookupsPage = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="regions" className="space-y-4">
+        <Tabs defaultValue="statuses" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="statuses" className="flex items-center space-x-2">
               <Tag className="h-4 w-4" />
@@ -121,28 +113,30 @@ const LookupsPage = () => {
               <Home className="h-4 w-4" />
               <span>סוגי נכסים</span>
             </TabsTrigger>
-             <TabsTrigger value="cities" className="flex items-center space-x-2">
-              <Building className="h-4 w-4" />
-              <span>ערים</span>
-            </TabsTrigger>
             <TabsTrigger value="regions" className="flex items-center space-x-2">
               <MapPin className="h-4 w-4" />
               <span>אזורים</span>
             </TabsTrigger>
-          </TabsList>          <TabsContent value="statuses">
-            <PropertyStatusesTable ref={statusTableRef} onDeleteConfirm={handleDeleteConfirm} />
+            <TabsTrigger value="cities" className="flex items-center space-x-2">
+              <Building className="h-4 w-4" />
+              <span>ערים</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="statuses">
+            <PropertyStatusesTable onDeleteConfirm={handleDeleteConfirm} />
           </TabsContent>
 
           <TabsContent value="types">
-            <PropertyTypesTable ref={typesTableRef} onDeleteConfirm={handleDeleteConfirm} />
+            <PropertyTypesTable onDeleteConfirm={handleDeleteConfirm} />
+          </TabsContent>
+
+          <TabsContent value="regions">
+            <RegionsTable onDeleteConfirm={handleDeleteConfirm} />
           </TabsContent>
 
           <TabsContent value="cities">
-            <CitiesTable ref={citiesTableRef} onDeleteConfirm={handleDeleteConfirm} />
-          </TabsContent>
-
-           <TabsContent value="regions">
-            <RegionsTable ref={regionsTableRef} onDeleteConfirm={handleDeleteConfirm} />
+            <CitiesTable onDeleteConfirm={handleDeleteConfirm} />
           </TabsContent>
         </Tabs>
 

@@ -33,11 +33,10 @@ const EditUserPage = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const fetchUser = async () => {
-    if (!userId) {
+  const fetchUser = async () => {    if (!userId) {
       toast({
-        title: 'Error',
-        description: 'User ID is required',
+        title: 'שגיאה',
+        description: 'מזהה משתמש נדרש',
         variant: 'destructive',
       });
       navigate('/admin/users');
@@ -55,11 +54,10 @@ const EditUserPage = () => {
         email: userData.email || '',
         phoneNumber: userData.phoneNumber || '',
         deleteCurrentImage: false,
-      });
-    } catch (error) {
+      });    } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch user details',
+        title: 'שגיאה',
+        description: 'טעינת פרטי המשתמש נכשלה',
         variant: 'destructive',
       });
       navigate('/admin/users');
@@ -73,25 +71,24 @@ const EditUserPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const validateForm = (): boolean => {    const newErrors: Record<string, string> = {};
 
     if (!formData.firstName?.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = 'שם פרטי נדרש';
     }
 
     if (!formData.lastName?.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = 'שם משפחה נדרש';
     }
 
     if (!formData.email?.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'אימייל נדרש';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'אנא הזן כתובת אימייל תקינה';
     }
 
     if (formData.phoneNumber && !/^\+?[\d\s-()]+$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Please enter a valid phone number';
+      newErrors.phoneNumber = 'אנא הזן מספר טלפון תקין';
     }
 
     setErrors(newErrors);
@@ -121,17 +118,16 @@ const EditUserPage = () => {
     }    try {
       setSaving(true);
       await updateUserEndpoint(formData);
-      
-      toast({
-        title: 'Success',
-        description: 'User updated successfully',
+        toast({
+        title: 'הצלחה',
+        description: 'המשתמש עודכן בהצלחה',
       });
 
       navigate('/admin/users');
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update user. Please try again.',
+        title: 'שגיאה',
+        description: 'עדכון המשתמש נכשל. אנא נסה שוב.',
         variant: 'destructive',
       });
     } finally {
@@ -145,7 +141,7 @@ const EditUserPage = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading user details...</p>
+            <p className="mt-2 text-gray-600">טוען פרטי משתמש...</p>
           </div>
         </div>
       </AdminLayout>

@@ -58,11 +58,10 @@ const UsersPage = () => {
       setLoading(true);
       const usersList = await getUsersListEndpoint();
       setUsers(usersList);
-      setFilteredUsers(usersList);
-    } catch (error) {
+      setFilteredUsers(usersList);    } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch users',
+        title: 'שגיאה',
+        description: 'טעינת המשתמשים נכשלה',
         variant: 'destructive',
       });
     } finally {
@@ -82,24 +81,22 @@ const UsersPage = () => {
       user.phoneNumber?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredUsers(filtered);
-  }, [users, searchTerm]);
-  const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
+  }, [users, searchTerm]);  const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
       await toggleUserStatusEndpoint(userId, { activateUser: !currentStatus });
       await fetchUsers(); // Refresh the list
       toast({
-        title: 'Success',
-        description: `User ${!currentStatus ? 'activated' : 'deactivated'} successfully`,
+        title: 'הצלחה',
+        description: `המשתמש ${!currentStatus ? 'הופעל' : 'הושבת'} בהצלחה`,
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update user status',
+        title: 'שגיאה',
+        description: 'עדכון סטטוס המשתמש נכשל',
         variant: 'destructive',
       });
     }
   };
-
   const handleDeleteUser = async () => {
     if (!selectedUser?.id) return;
 
@@ -107,13 +104,13 @@ const UsersPage = () => {
       await deleteUserEndpoint(selectedUser.id);
       await fetchUsers(); // Refresh the list
       toast({
-        title: 'Success',
-        description: 'User deleted successfully',
+        title: 'הצלחה',
+        description: 'המשתמש נמחק בהצלחה',
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to delete user',
+        title: 'שגיאה',
+        description: 'מחיקת המשתמש נכשלה',
         variant: 'destructive',
       });
     } finally {
