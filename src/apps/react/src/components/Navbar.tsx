@@ -1,9 +1,10 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Building, Phone, Info, Settings, Map, LogIn, User } from "lucide-react";
+import { Home, Building, Phone, Info, Settings, Map, LogIn, User, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/useAuth";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 import { useProperties } from "@/hooks/useProperties";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, currentAgent, logout } = useAuth();
+  const { isAdmin } = useAdminAccess();
   const { agentNeighborhoods } = useProperties();
   const { currentAgency, canSwitchTenant, switchTenant } = useTenantManagement();
   
@@ -84,13 +86,20 @@ const Navbar = () => {
                 icon={<Home className="h-4 w-4" />} 
                 label="נכסים"
                 isActive={isActive("/")}
-              />
-               <NavItem 
+              />               <NavItem 
                 to="/profile" 
                 icon={<User className="h-4 w-4" />} 
                 label={currentAgent?.name || "פרופיל"}
                 isActive={isActive("/profile")}
-              />              
+              />
+              {isAdmin && (
+                <NavItem 
+                  to="/admin" 
+                  icon={<Shield className="h-4 w-4" />} 
+                  label="ניהול"
+                  isActive={isActivePrefix("/admin")}
+                />
+              )}
               <Button 
                 variant="ghost" 
                 size="sm" 

@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { AuthProviderWithRouter } from "@/contexts/AuthProviderWithRouter";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 //import FallbackIndex from "./pages/FallbackIndex";
 import PropertyDetails from "./pages/PropertyDetails";
 import Properties from "./pages/Properties";
@@ -21,6 +22,15 @@ import LoginPage from "./pages/LoginPageIntegratedTenant";
 import EditProperty from "./pages/EditProperty";
 import AgentProfile from "./pages/AgentProfile";
 import SessionExpiryHandler from "@/components/SessionExpiryHandler";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UsersPage from "./pages/admin/UsersPage";
+import AddUserPage from "./pages/admin/AddUserPage";
+import EditUserPage from "./pages/admin/EditUserPage";
+import RolesPage from "./pages/admin/RolesPage";
+import TenantsPage from "./pages/admin/TenantsPage";
+import AddTenantPage from "./pages/admin/AddTenantPage";
+import AgenciesPage from "./pages/admin/AgenciesPage";
+import LookupsPage from "./pages/admin/LookupsPage";
 
 const queryClient = new QueryClient();
 
@@ -76,8 +86,7 @@ const App = () => (
                       <AgentProfile />
                     </ProtectedRoute>
                   }
-                />
-                <Route 
+                />                <Route 
                   path="/add-property" 
                   element={
                     <ProtectedRoute>
@@ -85,7 +94,81 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                <Route path="*" element={<NotFound />} />              </Routes>
+
+                {/* Admin Routes */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/users" 
+                  element={
+                    <AdminRoute>
+                      <UsersPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/users/new" 
+                  element={
+                    <AdminRoute>
+                      <AddUserPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/users/:userId/edit" 
+                  element={
+                    <AdminRoute>
+                      <EditUserPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/roles" 
+                  element={
+                    <AdminRoute>
+                      <RolesPage />
+                    </AdminRoute>
+                  } 
+                />                <Route 
+                  path="/admin/tenants" 
+                  element={
+                    <AdminRoute>
+                      <TenantsPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/tenants/new" 
+                  element={
+                    <AdminRoute>
+                      <AddTenantPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/agencies" 
+                  element={
+                    <AdminRoute>
+                      <AgenciesPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/lookups" 
+                  element={
+                    <AdminRoute>
+                      <LookupsPage />
+                    </AdminRoute>
+                  } 
+                />
+
+                <Route path="*" element={<NotFound />} /></Routes>
             </AuthProviderWithRouter>
           </BrowserRouter>
         </TenantProvider>
