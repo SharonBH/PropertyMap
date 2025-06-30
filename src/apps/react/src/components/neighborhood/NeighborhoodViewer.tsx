@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { Viewer } from "@photo-sphere-viewer/core";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { Card, CardContent } from "@/components/ui/card";
 import PropertyCard from "@/components/PropertyCard";
-import { NeighborhoodResponse, PropertyResponse } from '@/api/homemapapi';
+import { NeighborhoodResponse, PropertyResponse, searchPropertyStatusesEndpoint, PropertyStatusResponse } from '@/api/homemapapi';
 
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
@@ -24,6 +24,21 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
   const viewerContainer = useRef<HTMLDivElement>(null);
   const sphereViewer = useRef<Viewer | null>(null);
   const markersPlugin = useRef<MarkersPlugin | null>(null);
+  const onSelectPropertyRef = useRef(onSelectProperty);
+  const markersInitializedRef = useRef(false);
+  const [propertyStatuses, setPropertyStatuses] = useState<PropertyStatusResponse[]>([]);
+
+  // Fetch property statuses on component mount
+  useEffect(() => {
+    searchPropertyStatusesEndpoint({ pageNumber: 1, pageSize: 100 }, "1")
+      .then(res => setPropertyStatuses(res.items || []));
+  }, []);
+
+  // Update the ref when the callback changes
+  useEffect(() => {
+    onSelectPropertyRef.current = onSelectProperty;
+  }, [onSelectProperty]);  // Memoize properties to prevent unnecessary recalculations
+  const memoizedProperties = useMemo(() => properties, [properties]);
 
   console.log("properties:", properties);
   console.log("neighborhood:", neighborhood);
@@ -59,14 +74,24 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
   }, [neighborhood]);
 
   useEffect(() => {
-    if (!markersPlugin.current || !properties.length || !sphereViewer.current) return;
+    if (!markersPlugin.current || !memoizedProperties.length || !sphereViewer.current || !propertyStatuses.length) return;
 
-    const getMarkerColor = (status: string) => {
-      switch (status.toLowerCase()) {
+    // Don't recreate markers if they're already initialized and properties haven't changed
+    if (markersInitializedRef.current) return;
+
+    const getMarkerColor = (propertyStatusId: string) => {
+      const status = propertyStatuses.find(s => s.id === propertyStatusId);
+      const statusName = status?.name?.toLowerCase() || 'active';
+      
+      console.log("getMarkerColor called with statusId:", propertyStatusId, "statusName:", statusName);
+      switch (statusName) {
+        case 'active':
         case 'פעיל':
           return '#2DC7FF';
+        case 'pending':
         case 'ממתין':
           return '#F4D06F';
+        case 'sold':
         case 'נמכר':
           return '#ea384c';
         default:
@@ -75,79 +100,80 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
     };
 
     markersPlugin.current.clearMarkers();
-    console.log("Markers added:", properties[0]?.markerYaw, properties[0]?.markerPitch);
+    console.log("Markers added:", memoizedProperties[0]?.markerYaw, memoizedProperties[0]?.markerPitch);
 
-    setTimeout(() => {
-      properties.forEach((property) => {
-        // fallback for status
-        const status = (property as PropertyResponse & { status?: string }).status || 'active';
-        // Use markerYaw and markerPitch from the property, fallback to random if missing
-        const yaw = typeof property.markerYaw === 'number' ? property.markerYaw : (Math.random() * 2 * Math.PI - Math.PI);
-        const pitch = typeof property.markerPitch === 'number' ? property.markerPitch : ((Math.random() * Math.PI - Math.PI/2) * 0.8);
-        const markerId = `property-${property.id}`;
-        const color = getMarkerColor(status);
-        
-        markersPlugin.current?.addMarker({
-          id: `${markerId}-line`,
-          position: { yaw, pitch },
-          html: `
-            <div style="
-              width: 2px;
-              height: 40px;
-              background: linear-gradient(to bottom, ${color}, transparent);
-              transform: translateX(-50%);
-            "></div>
-          `,
-          anchor: 'bottom center',
-          data: { property }
-        });
-        markersPlugin.current?.addMarker({
-          id: markerId,
-          position: { yaw, pitch },
-          html: `
-            <div style="
-              transform: translate(-50%, -100%);
-              text-align: center;
-            ">
-              <div style="
-                background-color: ${color};
-                padding: 6px 10px;
-                border-radius: 4px;
-                color: white;
-                font-size: 13px;
-                font-weight: bold;
-                white-space: nowrap;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                margin-bottom: 4px;
-              ">
-                ${property.name}
-              </div>
-              <div style="
-                background-color: ${color}99;
-                padding: 3px 6px;
-                border-radius: 3px;
-                color: white;
-                font-size: 11px;
-                white-space: nowrap;
-              ">
-                ₪${property.askingPrice?.toLocaleString() || '-'}
-              </div>
-            </div>
-          `,
-          anchor: 'bottom center',
-          tooltip: property.name,
-          data: { property }
-        });
+    memoizedProperties.forEach((property) => {
+      // Use the proper propertyStatusId field
+      const propertyStatusId = property.propertyStatusId || '';
+      // Use markerYaw and markerPitch from the property, fallback to random if missing
+      const yaw = typeof property.markerYaw === 'number' ? property.markerYaw : (Math.random() * 2 * Math.PI - Math.PI);
+      const pitch = typeof property.markerPitch === 'number' ? property.markerPitch : ((Math.random() * Math.PI - Math.PI/2) * 0.8);
+      const markerId = `property-${property.id}`;
+      const color = getMarkerColor(propertyStatusId);
+      
+      markersPlugin.current?.addMarker({
+        id: `${markerId}-line`,
+        position: { yaw, pitch },
+        html: `
+          <div style="
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom, ${color}, transparent);
+            transform: translateX(-50%);
+          "></div>
+        `,
+        anchor: 'bottom center',
+        data: { property }
       });
-      if (sphereViewer.current) {
-        sphereViewer.current.needsUpdate();
-      }
-    }, 500);
+      markersPlugin.current?.addMarker({
+        id: markerId,
+        position: { yaw, pitch },
+        html: `
+          <div style="
+            transform: translate(-50%, -100%);
+            text-align: center;
+          ">
+            <div style="
+              background-color: ${color};
+              padding: 6px 10px;
+              border-radius: 4px;
+              color: white;
+              font-size: 13px;
+              font-weight: bold;
+              white-space: nowrap;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+              margin-bottom: 4px;
+            ">
+              ${property.name}
+            </div>
+            <div style="
+              background-color: ${color}99;
+              padding: 3px 6px;
+              border-radius: 3px;
+              color: white;
+              font-size: 11px;
+              white-space: nowrap;
+            ">
+              ₪${property.askingPrice?.toLocaleString() || '-'}
+            </div>
+          </div>
+        `,
+        anchor: 'bottom center',
+        tooltip: property.name,
+        data: { property }
+      });
+    });
+
+    markersInitializedRef.current = true;
+
+    if (sphereViewer.current) {
+      sphereViewer.current.needsUpdate();
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleMarkerClick = (e: any) => {
       if (e.marker.data?.property) {
-        onSelectProperty(e.marker.data.property);
+        onSelectPropertyRef.current(e.marker.data.property);
       }
     };
 
@@ -156,9 +182,10 @@ const NeighborhoodViewer: React.FC<NeighborhoodViewerProps> = ({
     return () => {
       if (markersPlugin.current) {
         markersPlugin.current.removeEventListener('select-marker', handleMarkerClick);
+        markersInitializedRef.current = false;
       }
     };
-  }, [properties, onSelectProperty]);
+  }, [memoizedProperties, propertyStatuses]);
 
   return (
     <div className="w-full h-full relative border border-muted">

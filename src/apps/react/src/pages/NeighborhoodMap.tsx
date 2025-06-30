@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import { useProperties } from "@/hooks/useProperties";
 import { PropertyResponse } from "@/api/homemapapi";
@@ -25,6 +25,11 @@ const NeighborhoodMap = () => {
   const props = selectedNeighborhoodId ? agentProperties.filter((p) => p.neighborhoodId === selectedNeighborhoodId) : [];
   const [selectedProperty, setSelectedProperty] = useState<PropertyResponse | null>(null);
 
+  // Memoize the callback to prevent unnecessary re-renders
+  const handleSelectProperty = useCallback((property: PropertyResponse | null) => {
+    setSelectedProperty(property);
+  }, []);
+
   // Only update selectedProperty if the property list changes
   useEffect(() => {
     setSelectedProperty(null);
@@ -43,7 +48,7 @@ const NeighborhoodMap = () => {
           neighborhood={neighborhood}
           properties={props}
           selectedProperty={selectedProperty}
-          onSelectProperty={setSelectedProperty}
+          onSelectProperty={handleSelectProperty}
         />
       </div>
     </div>
