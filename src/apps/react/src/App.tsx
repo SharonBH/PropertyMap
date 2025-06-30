@@ -30,6 +30,7 @@ import RolesPage from "./pages/admin/RolesPage";
 import TenantsPage from "./pages/admin/TenantsPage";
 import AddTenantPage from "./pages/admin/AddTenantPage";
 import AgenciesPage from "./pages/admin/AgenciesPage";
+import NeighborhoodsPage from "./pages/admin/NeighborhoodsPage";
 import LookupsPage from "./pages/admin/LookupsPage";
 
 const queryClient = new QueryClient();
@@ -150,12 +151,19 @@ const App = () => (
                       <AddTenantPage />
                     </AdminRoute>
                   } 
-                />
-                <Route 
+                />                <Route 
                   path="/admin/agencies" 
                   element={
                     <AdminRoute>
                       <AgenciesPage />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/neighborhoods" 
+                  element={
+                    <AdminRoute>
+                      <NeighborhoodsPage />
                     </AdminRoute>
                   } 
                 />

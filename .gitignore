@@ -464,16 +464,4 @@ src/api/server/appsettings.Development.json
 wwwroot/
 src/apps/react/server-api.json
 /src/api/server/assets/uploads
-src/apps/react/dist/favicon.ico
-src/apps/react/dist/index.html
-src/apps/react/dist/placeholder.svg
-src/apps/react/dist/staticwebapp.config.json
-src/apps/react/dist/vite.svg
-src/apps/react/dist/assets/16.jpg
-src/apps/react/dist/assets/black-marker.png
-src/apps/react/dist/assets/green-marker.png
-src/apps/react/dist/assets/index-CoEjmcA5.css
-src/apps/react/dist/assets/index-DFrwGd47.js
-src/apps/react/dist/assets/red-marker.png
-src/apps/react/dist/assets/index-Cnia2n67.js
-src/apps/react/dist/assets/index-D49WLFBd.css
+src/apps/react/dist/

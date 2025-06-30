@@ -7,7 +7,8 @@ import {
   Shield, 
   Settings, 
   LayoutDashboard,
-  ChevronRight 
+  ChevronRight,
+  MapPin 
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -17,8 +18,7 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const location = useLocation();
-  const menuItems = [
+  const location = useLocation();  const menuItems = [
     {
       title: 'לוח בקרה',
       href: '/admin',
@@ -44,6 +44,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       title: 'סוכנויות',
       href: '/admin/agencies',
       icon: Building2,
+    },
+    {
+      title: 'שכונות',
+      href: '/admin/neighborhoods',
+      icon: MapPin,
     },
     {
       title: 'רשימות מערכת',
